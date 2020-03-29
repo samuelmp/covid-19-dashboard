@@ -1,4 +1,9 @@
+## Covid-19 evolution dashboard
 
+### Current datasources
+
+[Data from Spain of COVID-19 (by Datadista)](https://github.com/datadista/datasets/tree/master/COVID%2019)
+[2019 Novel Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE](https://github.com/CSSEGISandData/COVID-19)
 
 ## Available Scripts
 
