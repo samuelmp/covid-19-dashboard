@@ -1,5 +1,7 @@
 ## Covid-19 evolution dashboard
 
+Live versión: [covid-19-evolution-dashboard.web.app](https://covid-19-evolution-dashboard.web.app/)
+
 ### Current datasources
 
 - [Data from Spain of COVID-19 (by Datadista)](https://github.com/datadista/datasets/tree/master/COVID%2019)<br />
