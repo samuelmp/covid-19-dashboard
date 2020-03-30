@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 
-import { Typography, Grid } from '@material-ui/core';
+import { Typography, Grid, Box } from '@material-ui/core';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import Score from './Score.jsx';
 
 import { listSpainResults } from '../services/dataService';
+import WidgetContainer from './WidgetContainer.jsx';
 
 const styles = theme => ({
   root: {
@@ -57,7 +58,7 @@ class Dashboard extends Component {
 
   componentDidMount = () => {
     listSpainResults((data) => {
-      
+
       this.setState({
         spainSeries: data.series,
         spainCatergories: data.categories,
@@ -70,15 +71,15 @@ class Dashboard extends Component {
     const cases = series[0].data[series[0].data.length - 1];
     const casesIncrement = cases - series[0].data[series[0].data.length - 2];
     const casesIncrementTrend = casesIncrement > series[0].data[series[0].data.length - 2] - series[0].data[series[0].data.length - 3] ? "up" : "down";
-  
+
     const recovered = series[1].data[series[1].data.length - 1];
     const recoveredIncrement = recovered - series[1].data[series[1].data.length - 2];
     const recoveredIncrementTrend = recoveredIncrement > series[1].data[series[1].data.length - 2] - series[1].data[series[1].data.length - 3] ? "up" : "down";
-  
+
     const deaths = series[2].data[series[2].data.length - 1];
     const deathsIncrement = deaths - series[2].data[series[2].data.length - 2];
     const deathsIncrementTrend = deathsIncrement > series[2].data[series[2].data.length - 2] - series[2].data[series[2].data.length - 3] ? "up" : "down";
-  
+
     return {
       score0: this.scoreFactory("Casos confirmados", cases, "blue", casesIncrement, casesIncrementTrend, casesIncrementTrend === "up" ? "red" : "green"),
       score1: this.scoreFactory("AlTas", recovered, "green", recoveredIncrement, recoveredIncrementTrend, recoveredIncrementTrend === "up" ? "green" : "red"),
@@ -99,9 +100,9 @@ class Dashboard extends Component {
     return (
       <>
         <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
-        <Grid container >
+        <Grid container component={Box} pt={1} pb={2} spacing={1} >
           <Grid item xs={12} md={6}>
-            <Grid container spacing={3} style={{padding: "2rem 1rem"}}>
+            <Grid container spacing={3} component={Box} pt={1} px={1}>
               <Grid item xs={12} sm={6} lg={4}>
                 <Score {...scoreData.score0} />
               </Grid>
@@ -123,39 +124,32 @@ class Dashboard extends Component {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12} md={6}>  
-            <Grid container spacing={3} style={{padding: "2.8rem 2rem"}}>
+          <Grid item xs={12} md={6}>
+            <Grid container spacing={3} component={Box} pt={2.5} px={2}>
               {/* <ChartContainer>
                 <SpainEvolutionWidget />
               </ChartContainer> */}
-              <Grid item xs={12} id="container4" style={{height: "400px", backgroundColor: "rgba(255,255,255,.025)", padding: "2rem 1rem", width: "100%"}}>
-              </Grid>
+                <WidgetContainer id="container4" style={{height: "400px"}} />
             </Grid>
           </Grid>
         </Grid>
         <Typography variant="h4" className={classes.mainTitle} >COVID-19 Evolución basada en fallecimientos</Typography>
-        {/* <Grid container >
-          <Grid item xs={12} sm={6} lg={4}>
-            <ChartContainer>
-            </ChartContainer>
+        <Grid container spacing={3} component={Box} px={3} pt={2}>
+          <Grid item xs={12} md={6} lg={4}>
+            <WidgetContainer id="container1" style={{height: "400px"}} />
           </Grid>
-          <Grid item xs={12} sm={6} lg={4}>
-            <ChartContainer>
-            </ChartContainer>
+          <Grid item xs={12} md={6} lg={4}>
+            <WidgetContainer id="container2" style={{height: "400px"}} />
           </Grid>
-          <Grid item xs={12} sm={6} lg={4}>
-            <ChartContainer>
-            </ChartContainer>
+          <Grid item xs={12} md={6} lg={4}>
+            <WidgetContainer id="container3" style={{height: "400px"}} />
           </Grid>
-        </Grid> */}
+        </Grid>
       </>
     );
   }
 }
 
-
-Dashboard.propTypes = {
-};
 export default withStyles(styles, {withTheme: true})(Dashboard);
 
 
@@ -231,7 +225,7 @@ Papa.parse(
 	complete: function(results, file) {
     console.log("Parsing Global results...");
     handleGlobalResults(results);
-    
+
   },
   error: function(err, file, inputElem, reason) {
 		console.log(err);
@@ -246,7 +240,7 @@ Papa.parse(
 	complete: function(results, file) {
     console.log("Parsing Spain results...");
     handleSpainResults(results);
-    
+
   },
   error: function(err, file, inputElem, reason) {
 		console.log(err);
@@ -275,11 +269,11 @@ const handleGlobalResults = results => {
         }
         if(line[1] === 'Spain' || line[1] === 'Italy' || line[1] === 'Germany') {
           if(i === 54) {
-            const fix = (parseInt(line[i+1])-parseInt(line[i])) / 2;          
+            const fix = (parseInt(line[i+1])-parseInt(line[i])) / 2;
             line[i] = parseInt(line[i]) + fix;
           }
           start && growthData.push(Math.round(((parseInt(line[i])-parseInt(line[i-1])) / parseInt(line[i-1])) * 100));
-          
+
         }
         start && incrementData.push(line[i]-line[i-1]);
         start && cumulativeData.push(line[i]-0);
@@ -289,7 +283,7 @@ const handleGlobalResults = results => {
       growthData.length > 0 && growthSeries.push({name: serieName, data: growthData});
     }
   });
-  
+
   renderChart(cumulativeSeries, "container1", "Acumulado");
   renderChart(incrementSeries, "container2", "Nuevos fallecimientos")
   renderChart(growthSeries, "container3", "Tasa de crecimiento", "%");
@@ -303,7 +297,7 @@ const handleSpainResults = results => {
   results.data.forEach((line, index) => {
     if(index === 0) {
       series.push(
-        {name: line[1],data: [], 
+        {name: line[1],data: [],
           fillColor: {
           stops: [
               [0, 'rgba(102, 207, 239, 1)'],
@@ -321,7 +315,7 @@ const handleSpainResults = results => {
           color: 'rgba(166, 226, 46, .8)'},
         {name: line[3],data: [], fillColor: {
           stops: [
-            
+
               [0, 'rgba(231, 76, 60, .9)'],
               [1, 'rgba(231, 76, 60, .1)']
             ]
@@ -341,7 +335,7 @@ const handleSpainResults = results => {
 }
 
 const renderChart = (series, container, title, sufix = false) => {
-  
+
   Highcharts.chart(container, {
     chart: {
       type: 'spline',
@@ -417,7 +411,7 @@ const renderChart = (series, container, title, sufix = false) => {
 }
 
 const renderAreaChart = (categories, series, container, title) => {
-  
+
   Highcharts.chart(container, {
     chart: {
       type: 'area',
@@ -452,7 +446,7 @@ const renderAreaChart = (categories, series, container, title) => {
         x: 0,
         y: 0
     },
-    
+
     tooltip: {
 		split: true,
 		crosshairs: true,
@@ -473,7 +467,7 @@ const renderAreaChart = (categories, series, container, title) => {
           }
         },
     },
-    
+
     series: series,
     responsive: {
       rules: [{
@@ -490,8 +484,8 @@ const renderAreaChart = (categories, series, container, title) => {
       }]
     }
   });
-  
-  
+
+
 }
 
 $('#updateTime').text();

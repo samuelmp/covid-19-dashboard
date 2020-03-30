@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TrendingUpRoundedIcon from '@material-ui/icons/TrendingUpRounded';
 import TrendingDownRoundedIcon from '@material-ui/icons/TrendingDownRounded';
+import WidgetContainer from './WidgetContainer.jsx';
 
 const scoreColors = {
   red: "rgba(231, 76, 60, .9)",
@@ -18,7 +19,6 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "column",
     display: "flex",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.025)",
     padding: "1rem",
     height: "calc(100% - 2rem)",
   },
@@ -67,7 +67,7 @@ const Score = ({ title, score, scoreColor, scoreInc, trend, trendColor }) => {
 
 
   return (
-  <Box className={classes.scoreWidget}>
+  <WidgetContainer className={classes.scoreWidget}>
     {title && <div className={classes.title}>{title}</div>}
     {score && <div className={classes.score} style={{color: scoreColorCode}}>
       {score.toLocaleString("it-IT")}
@@ -81,7 +81,7 @@ const Score = ({ title, score, scoreColor, scoreInc, trend, trendColor }) => {
           ""
       )}
     </div>
-  </Box>
+  </WidgetContainer>
   );
 };
 
