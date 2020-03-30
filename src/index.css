@@ -15,9 +15,9 @@ html, body {
 }
 
 a, a:visited {
-  color: #F92672AA;
+
   text-decoration: none;
-  opacity: .7;
+  opacity: .8;
   word-break: break-word;
 }
 

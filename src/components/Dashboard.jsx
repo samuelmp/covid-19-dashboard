@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import { Typography, Grid, Box } from '@material-ui/core';
+import { Typography, Grid, Box, Link } from '@material-ui/core';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -8,6 +8,11 @@ import Score from './Score.jsx';
 
 import { listSpainResults } from '../services/dataService';
 import WidgetContainer from './WidgetContainer.jsx';
+
+import Papa from 'papaparse';
+import Highcharts from 'highcharts';
+
+import SpainEvolutionWidget from './SpainEvolutionWidget.jsx';
 
 const styles = theme => ({
   root: {
@@ -58,7 +63,6 @@ class Dashboard extends Component {
 
   componentDidMount = () => {
     listSpainResults((data) => {
-
       this.setState({
         spainSeries: data.series,
         spainCatergories: data.categories,
@@ -96,13 +100,13 @@ class Dashboard extends Component {
 
   render() {
     const {classes} = this.props;
-    const { scoreData } = this.state;
+    const { scoreData, spainSeries, spainCatergories } = this.state;
     return (
       <>
         <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
-        <Grid container component={Box} pt={1} pb={2} spacing={1} >
+        <Grid container component={Box} pt={1} pb={2} px={0} spacing={1} >
           <Grid item xs={12} md={6}>
-            <Grid container spacing={3} component={Box} pt={1} px={1}>
+            <Grid container spacing={3} component={Box} pt={1} px={3}>
               <Grid item xs={12} sm={6} lg={4}>
                 <Score {...scoreData.score0} />
               </Grid>
@@ -117,19 +121,26 @@ class Dashboard extends Component {
               </Grid>
               <Grid item xs={12} sm={6} lg={4}>
                 <Score title="FuenTes de daTos" scoreInc={<>
-                  <a href='https://github.com/datadista/datasets' rel="noopener noreferrer" target="_blank" >https://github.com/datadista/datasets</a><br/>
-                  <a href='https://github.com/CSSEGISandData/COVID-19' rel="noopener noreferrer" target="_blank">https://github.com/CSSEGISandData/COVID-19</a><br/>
+                  <Link href="https://github.com/datadista/datasets" rel="noopener noreferrer" target="_blank">
+                    DaTa from Spain of COVID-19 (by DaTadisTa)
+                  </Link>
+                  <br />
+                  <Link href="https://github.com/CSSEGISandData/COVID-19" rel="noopener noreferrer" target="_blank">
+                    DaTa ReposiTory by Johns Hopkins CSSE
+                  </Link>
+                  <br />
                   {scoreData.score4 && scoreData.score4.score}
                 </>} />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Grid container spacing={3} component={Box} pt={2.5} px={2}>
+            <Grid container spacing={3} component={Box} pt={2.5} px={4.5}>
+              <SpainEvolutionWidget series={spainSeries} categories={spainCatergories} />
               {/* <ChartContainer>
                 <SpainEvolutionWidget />
               </ChartContainer> */}
-                <WidgetContainer id="container4" style={{height: "400px"}} />
+
             </Grid>
           </Grid>
         </Grid>
@@ -151,11 +162,6 @@ class Dashboard extends Component {
 }
 
 export default withStyles(styles, {withTheme: true})(Dashboard);
-
-
-var Highcharts = require('highcharts');
-var Papa = require('papaparse');
-var $ = require('jquery');
 
 console.clear();
 setTimeout(function(){
@@ -210,8 +216,7 @@ Highcharts.setOptions({
     "tickColor": "rgba(255,255,255,.3)",
     "tickWidth": 0
   }
-}
-);
+});
 
 console.log("Requesting resource...");
 
@@ -225,21 +230,6 @@ Papa.parse(
 	complete: function(results, file) {
     console.log("Parsing Global results...");
     handleGlobalResults(results);
-
-  },
-  error: function(err, file, inputElem, reason) {
-		console.log(err);
-	},
-});
-
-// Spain parsing data
-Papa.parse(
-  "https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/nacional_covid19.csv"
-, {
-	download: true,
-	complete: function(results, file) {
-    console.log("Parsing Spain results...");
-    handleSpainResults(results);
 
   },
   error: function(err, file, inputElem, reason) {
@@ -287,51 +277,6 @@ const handleGlobalResults = results => {
   renderChart(cumulativeSeries, "container1", "Acumulado");
   renderChart(incrementSeries, "container2", "Nuevos fallecimientos")
   renderChart(growthSeries, "container3", "Tasa de crecimiento", "%");
-}
-
-
-const handleSpainResults = results => {
-
-  const categories = [];
-  const series = [];
-  results.data.forEach((line, index) => {
-    if(index === 0) {
-      series.push(
-        {name: line[1],data: [],
-          fillColor: {
-          stops: [
-              [0, 'rgba(102, 207, 239, 1)'],
-              [1, 'rgba(102, 207, 239, .1)']
-            ]
-          }, lineColor: 'rgba(102, 207, 239, .8)',
-          color: 'rgba(102, 207, 239, .8)'
-        },
-        {name: line[2],data: [], fillColor: {
-          stops: [
-              [0, 'rgba(166, 226, 46, 1)'],
-              [1, 'rgba(166, 226, 46, .1)']
-            ]
-          }, lineColor: 'rgba(166, 226, 46, .8)',
-          color: 'rgba(166, 226, 46, .8)'},
-        {name: line[3],data: [], fillColor: {
-          stops: [
-
-              [0, 'rgba(231, 76, 60, .9)'],
-              [1, 'rgba(231, 76, 60, .1)']
-            ]
-          }, lineColor: 'rgba(231, 76, 60, .8)',
-          color: 'rgba(231, 76, 60, .8)'}
-        );
-    } else if(line[0] && parseInt(line[3])  > 1 ) {
-      categories.push(line[0].replace("2020-", ""));
-      //series[0].data.push(parseInt(Math.round(parseInt(line[3]) * 70)));
-      series[0].data.push(line[1] ? parseInt(line[1]) : 0);
-      series[1].data.push(line[2] ? parseInt(line[2]) : 0);
-      series[2].data.push(line[3] ? parseInt(line[3]) : 0);
-    }
-  });
-
-  renderAreaChart(categories, series, "container4", "España");
 }
 
 const renderChart = (series, container, title, sufix = false) => {
@@ -410,82 +355,3 @@ const renderChart = (series, container, title, sufix = false) => {
   });
 }
 
-const renderAreaChart = (categories, series, container, title) => {
-
-  Highcharts.chart(container, {
-    chart: {
-      type: 'area',
-      marginTop: 16,
-    },
-    credits: {
-        enabled: false
-    },
-    title: {
-        text: title,
-        y: 2,
-        x: -8,
-        align: "right"
-    },
-    yAxis: {
-        title: {
-            text: 'Casos'
-        }
-    },
-
-    xAxis: {
-        /*accessibility: {
-            rangeDescription: 'Range: 2010 to 2017'
-        },
-        categories: headers*/
-      categories: categories,
-      tickmarkPlacement: 'on',
-    },
-    legend: {
-        align: 'center',
-        verticalAlign: 'bottom',
-        x: 0,
-        y: 0
-    },
-
-    tooltip: {
-		split: true,
-		crosshairs: true,
-		shared: true
-    },
-    plotOptions: {
-        area: {
-            stacking: 'normal',
-            lineColor: '#666666',
-            lineWidth: 1,
-            marker: {
-              enabled: false
-            }
-        },
-        series: {
-          fillColor: {
-            linearGradient: {x1: 0, y1: 0, x2: .8, y2: .9},
-          }
-        },
-    },
-
-    series: series,
-    responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 500
-        },
-        chartOptions: {
-          legend: {
-            layout: 'horizontal',
-            align: 'center',
-            verticalAlign: 'bottom'
-          }
-        }
-      }]
-    }
-  });
-
-
-}
-
-$('#updateTime').text();
