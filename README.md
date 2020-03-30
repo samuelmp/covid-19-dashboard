@@ -1,5 +1,7 @@
 ## Covid-19 evolution dashboard
 
+Simple covid-19 evolution dashboard. Foscus on Spain data.
+
 Live versión: [covid-19-evolution-dashboard.web.app](https://covid-19-evolution-dashboard.web.app/)
 
 ### Current datasources

@@ -83,7 +83,7 @@ class Dashboard extends Component {
       score0: this.scoreFactory("Casos confirmados", cases, "blue", casesIncrement, casesIncrementTrend, casesIncrementTrend === "up" ? "red" : "green"),
       score1: this.scoreFactory("AlTas", recovered, "green", recoveredIncrement, recoveredIncrementTrend, recoveredIncrementTrend === "up" ? "green" : "red"),
       score2: this.scoreFactory("Fallecimientos", deaths, "red", deathsIncrement, deathsIncrementTrend, deathsIncrementTrend === "up" ? "red" : "green"),
-      score3: this.scoreFactory("Casos esTimados", Math.round((deaths * 100) / .7), "orange", "* Basado en una tasa de fallecimientos del 0.7%"),
+      score3: this.scoreFactory("Casos esTimados", Math.round((deaths * 100) / 1), "orange", "* Basado en una tasa de fallecimientos del 1%"),
       score4: {score: (categories.length > 0 && categories[categories.length-1]) || ""},
     };
   }
@@ -329,7 +329,7 @@ const handleSpainResults = results => {
           color: 'rgba(231, 76, 60, .8)'}
         );
     } else if(line[0] && parseInt(line[3])  > 1 ) {
-      categories.push(line[0]);
+      categories.push(line[0].replace("2020-", ""));
       //series[0].data.push(parseInt(Math.round(parseInt(line[3]) * 70)));
       series[0].data.push(line[1] ? parseInt(line[1]) : 0);
       series[1].data.push(line[2] ? parseInt(line[2]) : 0);
