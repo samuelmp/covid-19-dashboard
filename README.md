@@ -1,11 +1,18 @@
 ## Covid-19 evolution dashboard
 
+Simple covid-19 evolution dashboard. Foscus on Spain data.
+
 Live versión: [covid-19-evolution-dashboard.web.app](https://covid-19-evolution-dashboard.web.app/)
 
 ### Current datasources
 
 - [Data from Spain of COVID-19 (by Datadista)](https://github.com/datadista/datasets/tree/master/COVID%2019)<br />
 - [2019 Novel Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE](https://github.com/CSSEGISandData/COVID-19)
+
+### Screenshot:
+![alt text](https://github.com/samuelmp/covid-19-dashboard/blob/master/public/screenshot.01.png?raw=true "Screenshot 1")
+
+
 
 ## Available Scripts
 
