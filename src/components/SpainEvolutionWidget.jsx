@@ -11,10 +11,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const options2 = {
-
-};
-
 const options = {
   chart: {
     type: 'area',
@@ -29,11 +25,7 @@ const options = {
       x: -8,
       align: "right"
   },
-  series: [
-    {
-      data: [1, 2, 1, 4, 3, 6]
-    }
-  ],
+
   xAxis: {
     tickmarkPlacement: 'on',
   },
@@ -55,12 +47,12 @@ const options = {
   },
   plotOptions: {
     area: {
-        stacking: 'normal',
-        lineColor: '#666666',
-        lineWidth: 1,
-        marker: {
-          enabled: false
-        }
+      stacking: 'normal',
+      lineColor: '#666666',
+      lineWidth: 1,
+      marker: {
+        enabled: false
+      }
     },
     series: {
       fillColor: {

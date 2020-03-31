@@ -19,6 +19,7 @@ a, a:visited {
   text-decoration: none;
   opacity: .8;
   word-break: break-word;
+  transition: opacity .5s ease;
 }
 
 a:hover {
@@ -42,6 +43,36 @@ body:hover::-webkit-scrollbar-thumb {
   background-color: rgba(255,255,255,.14);
   -webkit-box-shadow: inset -1px -1px 0px rgba(255, 255, 255, 0.05), inset 1px 1px 0px rgba(255, 255, 255, 0.05);
   box-shadow: inset -1px -1px 0px rgba(255, 255, 255, 0.05), inset 1px 1px 0px rgba(255, 255, 255, 0.05);
+}
+
+.ribbon {
+  /* positioning */
+  position: fixed;
+  padding: 5px 27px;
+  width: 120px;
+  /* top right of the page */
+  top: 40px;
+  right: -40px;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  /* effects with some shadow */
+  box-shadow: 0 0 0 3px #f92672, 0 0 20px -3px rgba(255, 255, 255, 0.5);
+  text-shadow: 0 0 0 #ffffff, 0 0 5px rgba(255, 255, 255, 0.3);
+  /* looks */
+  background-color: #f92672;
+  color: #ffffff;
+  font-size: 12px;
+  font-family: sans-serif;
+  text-decoration: none;
+  font-weight: 400;
+  /* ribbon effects */
+  border: 1px dashed #ffffff;
+  /* webkit antialias fix */
+  -webkit-backface-visibility: hidden;
+  letter-spacing: .5px;
+  opacity: .3;
 }
 
 /* scrollbar itself */

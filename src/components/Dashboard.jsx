@@ -24,29 +24,8 @@ const styles = theme => ({
     borderBottom: "1px none #A2A39C60",
     paddingBottom: ".4rem",
     marginBottom: 0,
-    marginTop: "2rem",
+    marginTop: "1rem",
   },
-  halfDividerContainer: {
-    display: "flex",
-    marginBottom: "2em",
-    [theme.breakpoints.up('xs')]: {
-      flexDirection: "column",
-    },
-    [theme.breakpoints.up('md')]: {
-      flexDirection: "row",
-    },
-  },
-  areaChartContainer: {
-    height: 400,
-    marginTop: "2rem",
-    padding: "0",
-    [theme.breakpoints.up('xs')]: {
-      flex: "1 1 100%",
-    },
-    [theme.breakpoints.up('md')]: {
-      flex: "1 1 50%",
-    },
-  }
 });
 
 
@@ -102,11 +81,11 @@ class Dashboard extends Component {
     const {classes} = this.props;
     const { scoreData, spainSeries, spainCatergories } = this.state;
     return (
-      <>
+      <Box style={{padding: "2rem"}}>
         <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
-        <Grid container component={Box} pt={1} pb={2} px={0} spacing={1} >
+        <Grid container component={Box} spacing={3} py={3} mb={1} >
           <Grid item xs={12} md={6}>
-            <Grid container spacing={3} component={Box} pt={1} px={3}>
+            <Grid container spacing={3} component={Box}>
               <Grid item xs={12} sm={6} lg={4}>
                 <Score {...scoreData.score0} />
               </Grid>
@@ -135,17 +114,13 @@ class Dashboard extends Component {
             </Grid>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Grid container spacing={3} component={Box} pt={2.5} px={4.5}>
+            <Grid container spacing={0} component={Box}>
               <SpainEvolutionWidget series={spainSeries} categories={spainCatergories} />
-              {/* <ChartContainer>
-                <SpainEvolutionWidget />
-              </ChartContainer> */}
-
             </Grid>
           </Grid>
         </Grid>
         <Typography variant="h4" className={classes.mainTitle} >COVID-19 Evolución basada en fallecimientos</Typography>
-        <Grid container spacing={3} component={Box} px={3} pt={2}>
+        <Grid container spacing={3} component={Box} pt={3} >
           <Grid item xs={12} md={6} lg={4}>
             <WidgetContainer id="container1" style={{height: "400px"}} />
           </Grid>
@@ -156,7 +131,7 @@ class Dashboard extends Component {
             <WidgetContainer id="container3" style={{height: "400px"}} />
           </Grid>
         </Grid>
-      </>
+      </Box>
     );
   }
 }
@@ -239,13 +214,13 @@ Papa.parse(
 
 
 const handleGlobalResults = results => {
-  const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom"]
+  const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei"]
   const cumulativeSeries = [];
   const incrementSeries = [];
   const growthSeries = [];
   results.data.forEach((line, index) => {
     if((line[0] === "" && countries.indexOf(line[1]) >= 0) ||
-       (countries.indexOf(line[0]) >= 0 && countries.indexOf(line[1]) >= 0)
+       (countries.indexOf(line[0]) >= 0 )
     ) {
       const serieName = line[1];
       const cumulativeData = [];
@@ -309,6 +284,7 @@ const renderChart = (series, container, title, sufix = false) => {
 
     xAxis: {
       allowDecimals: false,
+      tickmarkPlacement: 'on',
         /*accessibility: {
             rangeDescription: 'Range: 2010 to 2017'
         },
