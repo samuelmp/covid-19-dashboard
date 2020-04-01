@@ -79,7 +79,8 @@ Highcharts.setOptions({
   tooltip: {
     split: false,
     crosshairs: true,
-    shared: true
+    shared: true,
+    style: {color: "#A2A39C"}
   },
   responsive: {
     rules: [{
