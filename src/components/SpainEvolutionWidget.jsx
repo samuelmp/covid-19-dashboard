@@ -13,67 +13,80 @@ const useStyles = makeStyles(theme => ({
 
 const options = {
   chart: {
-    type: 'area',
-    marginTop: 16,
+    type: 'spline',
+    marginTop: 30,
+
   },
-  credits: {
-    enabled: false
-  },
+
   title: {
       text: "",
-      y: 2,
+      y: 4,
       x: -8,
       align: "right"
   },
 
   xAxis: {
     tickmarkPlacement: 'on',
-  },
-  yAxis: {
-    title: {
-        text: 'Casos'
-    }
-  },
-  legend: {
-    align: 'center',
-    verticalAlign: 'bottom',
-    x: 0,
-    y: 0
-  },
-  tooltip: {
-    split: true,
-    crosshairs: true,
-    shared: true
-  },
-  plotOptions: {
-    area: {
-      stacking: 'normal',
-      lineColor: '#666666',
-      lineWidth: 1,
-      marker: {
-        enabled: false
-      }
-    },
-    series: {
-      fillColor: {
-        linearGradient: {x1: 0, y1: 0, x2: .8, y2: .9},
-      }
-    },
-  },
-  responsive: {
-    rules: [{
-      condition: {
-        maxWidth: 500
-      },
-      chartOptions: {
-        legend: {
-          layout: 'horizontal',
-          align: 'center',
-          verticalAlign: 'bottom'
+    plotLines: [{
+      color: 'rgba(255,255,255,.3)',
+      width: 2,
+      value: 9,
+      dashStyle: "Dash",
+      label: {
+        text: 'Estado Alarma',
+        verticalAlign: 'Top',
+        textAlign: 'center',
+        y: 40,
+        x: 8,
+        style: {
+          color: '#FFFFFF',
         }
       }
     }]
-  }
+  },
+  yAxis: [{ // Primary yAxis
+    labels: {
+      style: {
+          color: Highcharts.getOptions().colors[1]
+      }
+    },
+    title: {
+      enabled: false,
+      text: 'PosiTivos',
+      style: {
+          color: Highcharts.getOptions().colors[1]
+      }
+    },
+
+  }, { // Secondary yAxis
+    // gridLineWidth: 0,
+    title: {
+      text: 'Fallecidos - PosiTivos',
+      style: {
+          color: Highcharts.getOptions().colors[4]
+      }
+    },
+    labels: {
+      style: {
+          color: Highcharts.getOptions().colors[4]
+      }
+    },
+    opposite: true
+  }, { // Secondary yAxis
+    // gridLineWidth: 0,
+    title: {
+      text: 'Altas',
+      style: {
+          color: Highcharts.getOptions().colors[2]
+      }
+    },
+    labels: {
+      style: {
+          color: Highcharts.getOptions().colors[2]
+      }
+    },
+    // opposite: true
+  }],
 };
 
 const SpainEvolutionWidget = ({ series, categories }) => {
@@ -81,8 +94,6 @@ const SpainEvolutionWidget = ({ series, categories }) => {
   options.series = series || [];
   options.xAxis.categories = categories || [];
   options.title.text = "España";
-  console.log("SpainEvolutionWidget >", series);
-  console.log("Highcharts >", Highcharts);
   return (<>
     <WidgetContainer className={classes.root}>
       <HighchartsReact highcharts={Highcharts} options={options} containerProps = {{ style: {width: "100%"} }} />
