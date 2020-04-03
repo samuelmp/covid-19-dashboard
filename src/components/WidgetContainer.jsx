@@ -7,9 +7,9 @@ const styles = theme => ({
   root: {
     display: "inline-flex",
     backgroundColor: "rgba(255,255,255,.025)",
-    padding: "2rem 1rem",
+    padding: "2rem .75rem",
     borderRadius: ".5rem",
-    width: "calc(100% - 2rem)",
+    width: "calc(100% - 1.5rem)",
     height: "calc(100% - 2rem)",
   },
 });

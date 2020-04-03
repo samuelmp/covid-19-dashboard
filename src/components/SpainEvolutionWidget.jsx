@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import WidgetContainer from './WidgetContainer.jsx';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
+var _styles = require("@material-ui/core/styles");
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -11,78 +12,121 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const options = {
-  chart: {
-    type: 'area',
-    marginTop: 16,
-  },
-  credits: {
-    enabled: false
-  },
-  title: {
-      text: "",
-      y: 2,
-      x: -8,
-      align: "right"
-  },
 
-  xAxis: {
-    tickmarkPlacement: 'on',
-  },
-  yAxis: {
-    title: {
-        text: 'Casos'
-    }
-  },
-  legend: {
-    align: 'center',
-    verticalAlign: 'bottom',
-    x: 0,
-    y: 0
-  },
-  tooltip: {
-    split: true,
-    crosshairs: true,
-    shared: true
-  },
-  plotOptions: {
-    area: {
-      stacking: 'normal',
-      lineColor: '#666666',
-      lineWidth: 1,
-      marker: {
-        enabled: false
-      }
-    },
-    series: {
-      fillColor: {
-        linearGradient: {x1: 0, y1: 0, x2: .8, y2: .9},
-      }
-    },
-  },
-  responsive: {
-    rules: [{
-      condition: {
-        maxWidth: 500
-      },
-      chartOptions: {
-        legend: {
-          layout: 'horizontal',
-          align: 'center',
-          verticalAlign: 'bottom'
-        }
-      }
-    }]
-  }
-};
 
 const SpainEvolutionWidget = ({ series, categories }) => {
   const classes = useStyles();
+  const seriesColors = [
+    Highcharts.getOptions().colors[1],
+    Highcharts.getOptions().colors[2],
+    Highcharts.getOptions().colors[4]
+  ];
+  const options = {
+    chart: {
+      type: 'spline',
+    },
+
+    title: {
+        text: "",
+        y: 4,
+        x: -8,
+        align: "right"
+    },
+
+    xAxis: {
+      tickmarkPlacement: 'on',
+      plotLines: [{
+        color: 'rgba(255,255,255,.3)',
+        width: 2,
+        value: 9,
+        dashStyle: "Dash",
+        label: {
+          text: 'Estado Alarma',
+          verticalAlign: 'Top',
+          textAlign: 'left',
+          y: 10,
+          x: 8,
+          style: {
+            color: '#FFFFFF',
+          }
+        }
+      },{
+        color: 'rgba(255,255,255,.3)',
+        width: 2,
+        value: 25.5,
+        dashStyle: "Dash",
+        label: {
+          text: 'Trabajos Esenciales',
+          verticalAlign: 'Top',
+          textAlign: 'left',
+          y: 100,
+          x: 8,
+          style: {
+            color: '#FFFFFF',
+          }
+        }
+      }]
+    },
+    yAxis: [{ // Primary yAxis
+      labels: {
+        style: {
+            color: Highcharts.getOptions().colors[2]
+        }
+      },
+      title: {
+        enabled: false,
+        text: 'PosiTivos - AlTas',
+        style: {
+            color: Highcharts.getOptions().colors[1]
+        }
+      },
+
+    }, { // Secondary yAxis
+      // gridLineWidth: 0,
+      title: {
+        text: 'Fallecidos',
+        style: {
+            color: Highcharts.getOptions().colors[4]
+        }
+      },
+      labels: {
+        style: {
+            color: Highcharts.getOptions().colors[4]
+        }
+      },
+      opposite: true
+    }, { // Secondary yAxis
+      // gridLineWidth: 0,
+      title: {
+        text: 'PosiTivos - AlTas',
+        style: {
+            color: Highcharts.getOptions().colors[2]
+        }
+      },
+      labels: {
+        style: {
+            color: Highcharts.getOptions().colors[2]
+        }
+      },
+      // opposite: true
+    }],
+  };
+
   options.series = series || [];
+
+  options.series.forEach( (serie, index, series) => {
+    console.log(seriesColors[index], serie)
+    series[index] = { ...serie,
+      fillColor: {
+        stops: [[0, _styles.fade(seriesColors[index], 1)], [1, _styles.fade(seriesColors[index], .1)]]
+      },
+      lineColor: _styles.fade(seriesColors[index], .8),
+      color: _styles.fade(seriesColors[index], .8)
+    };
+  });
+  console.log(options.series)
   options.xAxis.categories = categories || [];
   options.title.text = "España";
-  console.log("SpainEvolutionWidget >", series);
-  console.log("Highcharts >", Highcharts);
   return (<>
     <WidgetContainer className={classes.root}>
       <HighchartsReact highcharts={Highcharts} options={options} containerProps = {{ style: {width: "100%"} }} />

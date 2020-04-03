@@ -31,6 +31,30 @@ h1 {
   text-align: center;
 }
 
+
+
+/* Tooltip */
+.highcharts-tooltip {
+  cursor: default;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: stroke 150ms;
+
+}
+.highcharts-tooltip text {
+  fill: #F0F0F0;
+  color: #F0F0F0;
+}
+.highcharts-tooltip .highcharts-header {
+  font-size: 0.85em;
+}
+.highcharts-tooltip-box {
+  stroke-width: 1px;
+  stroke: rgba(249, 38, 115, 0.7);
+  fill: rgba(6, 18, 26, 0.7);
+  fill-opacity: 0.7;
+}
+
 body::-webkit-scrollbar {
   width: 16px;
   height: 16px;
