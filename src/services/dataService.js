@@ -41,6 +41,7 @@ export const requestData = (callback) => {
 };
 
 const transformData = (rawDataObj, callback) => {
+
   if(rawDataObj.spain && rawDataObj.global_deaths && rawDataObj.spain.length > 1 && rawDataObj.global_deaths.length > 1  ) {
 
     rawDataObj = handleRawData(rawDataObj);
@@ -74,12 +75,14 @@ const handleRawData = (rawDataObj) => {
 
   rawDataObj.global_deaths.forEach(item => {
 
-    item[0] === "" && item[1] === "Spain" && console.log(item)
     if(item[0] === "" && item[1] === "Spain") {
       for (let i = 1; i < rawDataObj.spain.length; i++) {
+
         const element = rawDataObj.spain[i];
-        const globalDateIndex = firstDataIndex  + i - 1;
-        item[globalDateIndex] = element[3] || "0";
+        if(element && element.length > 0 && element[0]) {
+          const globalDateIndex = firstDataIndex  + i - 1;
+          item[globalDateIndex] = element[3] || "0";
+        }
       }
     }
   });
@@ -95,36 +98,16 @@ const transformSpainResults = results => {
   results.forEach((line, index) => {
     if(index === 0) {
       series.push(
-        {name: line[1],data: [],
-          fillColor: {
-          stops: [
-              [0, 'rgba(102, 207, 239, 1)'],
-              [1, 'rgba(102, 207, 239, .1)']
-            ]
-          }, lineColor: 'rgba(102, 207, 239, .8)',
-          color: 'rgba(102, 207, 239, .8)'
-        },
-        {name: line[2],data: [], fillColor: {
-          stops: [
-              [0, 'rgba(166, 226, 46, 1)'],
-              [1, 'rgba(166, 226, 46, .1)']
-            ]
-          }, lineColor: 'rgba(166, 226, 46, .8)',
-          color: 'rgba(166, 226, 46, .8)'},
-        {name: line[3],data: [], fillColor: {
-          stops: [
-              [0, 'rgba(231, 76, 60, .9)'],
-              [1, 'rgba(231, 76, 60, .1)']
-            ]
-          }, lineColor: 'rgba(231, 76, 60, .8)',
-          color: 'rgba(231, 76, 60, .8)'}
-        );
-      seriesNew.push(JSON.parse(JSON.stringify(series[0])));
-      seriesNew.push(JSON.parse(JSON.stringify(series[1])));
-      seriesNew.push(JSON.parse(JSON.stringify(series[2])));
-      //seriesNew[1]["yAxis"] = 1;
-      seriesNew[2]["yAxis"] = 1;
+        {name: line[1],data: []},
+        {name: line[2],data: []},
+        {name: line[3],data: []}
+      );
 
+      seriesNew.push(
+        {name: line[1],data: []},
+        {name: line[2],data: []},
+        {name: line[3],data: [], yAxis: 1}
+      );
 
     } else if(line[0] && parseInt(line[3])  > 1 ) {
       categories.push(line[0].replace("2020-", ""));

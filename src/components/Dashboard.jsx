@@ -11,8 +11,6 @@ import WidgetContainer from './WidgetContainer.jsx';
 
 import Highcharts from 'highcharts';
 
-import CustomHighcharts from './CustomHighcharts.js';
-
 import SpainEvolutionWidget from './SpainEvolutionWidget.jsx';
 
 const styles = theme => ({
@@ -77,29 +75,16 @@ class Dashboard extends Component {
               <Grid item xs={12} sm={6} lg={4}>
                 <Score {...scoreData.score3} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={4}>
-                <Score title="FuenTes de daTos" scoreInc={<>
-                  <Link href="https://github.com/datadista/datasets" rel="noopener noreferrer" target="_blank">
-                    DaTa from Spain of COVID-19 (by DaTadisTa)
-                  </Link>
-                  <br />
-                  <Link href="https://github.com/CSSEGISandData/COVID-19" rel="noopener noreferrer" target="_blank">
-                    DaTa ReposiTory by Johns Hopkins CSSE
-                  </Link>
-                  <br />
-                  {scoreData.score4 && scoreData.score4.score}
-                </>} />
-              </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Grid container spacing={0} component={Box}>
+            <Grid container spacing={0} component={Box} pr={0}>
               <SpainEvolutionWidget series={spainSeries} categories={spainCatergories} />
             </Grid>
           </Grid>
         </Grid>
         <Typography variant="h4" className={classes.mainTitle} >COVID-19 Evolución global basada en fallecimienTos</Typography>
-        <Grid container spacing={3} component={Box} pt={3} >
+        <Grid container spacing={3} component={Box} pt={3} pr={0} >
           <Grid item xs={12} md={6} lg={4}>
             <WidgetContainer id="container1" style={{height: "400px"}} />
           </Grid>
@@ -109,6 +94,19 @@ class Dashboard extends Component {
           <Grid item xs={12} md={6} lg={4}>
             <WidgetContainer id="container3" style={{height: "400px"}} />
           </Grid>
+        </Grid>
+        <Grid container spacing={3} component={Box} pt={3} pb={3} >
+          <Score title="FuenTes de daTos" scoreInc={<>
+            <Link href="https://github.com/datadista/datasets" rel="noopener noreferrer" target="_blank">
+              DaTa from Spain of COVID-19 (by DaTadisTa)
+            </Link>
+            <br />
+            <Link href="https://github.com/CSSEGISandData/COVID-19" rel="noopener noreferrer" target="_blank">
+              DaTa ReposiTory by Johns Hopkins CSSE
+            </Link>
+            <br />
+            {scoreData.score4 && scoreData.score4.score}
+          </>} />
         </Grid>
       </Box>
     );
@@ -127,7 +125,8 @@ const renderChart = (series, container, title, sufix = false) => {
   Highcharts.chart(container, {
     chart: {
       type: 'spline',
-      marginTop: 16
+      marginTop: 20,
+      marginBottom: 50,
     },
     title: {
         text: title,
