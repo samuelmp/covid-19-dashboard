@@ -46,6 +46,9 @@ const styles = theme => ({
   scoreInc: {
     fontSize: "1.5rem",
     textAlign: "center",
+    display: "inline-flex",
+    alignItems: "center",
+
     '& i' : {
       marginLeft: ".6rem"
     },
@@ -58,6 +61,13 @@ const styles = theme => ({
     fontSize: "1rem",
     textAlign: "center",
     marginTop: "1rem"
+  },
+  scoreDifference: {
+    fontSize: "1.2rem",
+    display: "inline-flex",
+    marginLeft: theme.spacing(1),
+    opacity: .8,
+    marginTop: theme.spacing(.5)
   },
   trendRed: {
     color: "rgba(231, 76, 60, .9)",
@@ -120,14 +130,12 @@ const styles = theme => ({
 
     const {color, serie} = this.props;
     window.$(this.peityEl).peity("line", {
-      stroke: _styles.fade(scoreColors[color || "grey"], .125),
-      fill: _styles.fade(scoreColors[color || "grey"], .025),
+      stroke: _styles.fade(scoreColors[color || "grey"], .175),
+      fill: _styles.fade(scoreColors[color || "grey"], .075),
       width: "100%",
       height: "90%",
     });
-    console.log("----->->->->-> componentDidUpdate Serie1: ", serie);
     if(!Object.equals(prevProps.serie, serie)) {
-      console.log("----->->->->-> componentDidUpdate Serie2: ", serie);
       this.transformDataResults(serie)
     }
 
@@ -156,6 +164,8 @@ const styles = theme => ({
               (scoreTrend < 0 && <TrendingDownRoundedIcon className={trendColorClass} />) ||
               ""
           )}
+          {!trendText && <Typography className={classes.scoreDifference}>{(scoreTrend > 0 ? "+" : "") + scoreTrend}</Typography>}
+
         </div>
         {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}> {peityList.join(",")}</span>}
       </WidgetContainer>
