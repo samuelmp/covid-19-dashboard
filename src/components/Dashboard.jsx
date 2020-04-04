@@ -33,7 +33,6 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      scoreData: [],
       spainSeries: [],
       spainCatergories: []
     };
@@ -44,7 +43,6 @@ class Dashboard extends Component {
       this.setState({
         spainSeries: data.spain.spainSeriesNew,
         spainCatergories: data.spain.spainCatergories,
-        scoreData: data.spain.scoreData
       });
 
       renderChart(data.global_deaths.cumulativeSeries, "container1", "FallecimienTos acumulados");
@@ -56,24 +54,27 @@ class Dashboard extends Component {
 
   render() {
     const {classes} = this.props;
-    const { scoreData, spainSeries, spainCatergories } = this.state;
+    const { spainSeries, spainCatergories } = this.state;
     return (
       <Box style={{padding: "0 2rem", paddingBottom: "1rem"}}>
         <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
         <Grid container component={Box} spacing={3} py={3} mb={1} >
           <Grid item xs={12} md={6}>
             <Grid container spacing={3} component={Box}>
-              <Grid item xs={12} sm={6} lg={4}>
-                <Score {...scoreData.score0} />
+              <Grid item xs={12} sm={6} lg={6}>
+                <Score title="PosiTivos" color="blue" serie={spainSeries[0]} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={4}>
-                <Score {...scoreData.score1} />
+              <Grid item xs={12} sm={6} lg={6}>
+                <Score title="AlTas" color="green" reverseTrend serie={spainSeries[1]} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={4}>
-                <Score {...scoreData.score2} />
+              <Grid item xs={12} sm={6} lg={6}>
+                <Score title="Fallecidos" color="red" serie={spainSeries[2]} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={4}>
-                <Score {...scoreData.score3} />
+              <Grid item xs={12} sm={6} lg={6}>
+                <Score title="Casos esTimados" color="orange"
+                  serie={spainSeries[2] ? {...spainSeries[2], data: spainSeries[2].data.map(el => el * 100)} : undefined}
+                  trendText = "* Basado en una tasa de fallecimienTos del 1%"
+                />
               </Grid>
             </Grid>
           </Grid>
@@ -96,7 +97,7 @@ class Dashboard extends Component {
           </Grid>
         </Grid>
         <Grid container spacing={3} component={Box} pt={3} pb={3} >
-          <Score title="FuenTes de daTos" scoreInc={<>
+          <Score title="FuenTes de daTos" trendText={<>
             <Link href="https://github.com/datadista/datasets" rel="noopener noreferrer" target="_blank">
               DaTa from Spain of COVID-19 (by DaTadisTa)
             </Link>
@@ -105,7 +106,7 @@ class Dashboard extends Component {
               DaTa ReposiTory by Johns Hopkins CSSE
             </Link>
             <br />
-            {scoreData.score4 && scoreData.score4.score}
+            {spainCatergories && spainCatergories[spainCatergories.length-1]}
           </>} />
         </Grid>
       </Box>

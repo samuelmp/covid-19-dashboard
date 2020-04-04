@@ -54,7 +54,6 @@ const transformData = (rawDataObj, callback) => {
       spainSeries: spainResults.series,
       spainSeriesNew: spainResults.seriesNew,
       spainCatergories: spainResults.categories,
-      scoreData: transformSpainScoreResults(spainResults.series, spainResults.categories)
     };
 
     chartData.global_deaths = transformGlobalResults(rawDataObj.global_deaths);
@@ -129,33 +128,6 @@ const transformSpainResults = results => {
 };
 
 
-
-const transformSpainScoreResults = (series, categories) => {
-  const cases = series[0].data[series[0].data.length - 1];
-  const casesIncrement = cases - series[0].data[series[0].data.length - 2];
-  const casesIncrementTrend = casesIncrement > series[0].data[series[0].data.length - 2] - series[0].data[series[0].data.length - 3] ? "up" : "down";
-
-  const recovered = series[1].data[series[1].data.length - 1];
-  const recoveredIncrement = recovered - series[1].data[series[1].data.length - 2];
-  const recoveredIncrementTrend = recoveredIncrement > series[1].data[series[1].data.length - 2] - series[1].data[series[1].data.length - 3] ? "up" : "down";
-
-  const deaths = series[2].data[series[2].data.length - 1];
-  const deathsIncrement = deaths - series[2].data[series[2].data.length - 2];
-  const deathsIncrementTrend = deathsIncrement > series[2].data[series[2].data.length - 2] - series[2].data[series[2].data.length - 3] ? "up" : "down";
-
-  return {
-    score0: scoreFactory("PosiTivos", cases, "blue", casesIncrement, casesIncrementTrend, casesIncrementTrend === "up" ? "red" : "green"),
-    score1: scoreFactory("AlTas", recovered, "green", recoveredIncrement, recoveredIncrementTrend, recoveredIncrementTrend === "up" ? "green" : "red"),
-    score2: scoreFactory("Fallecidos", deaths, "red", deathsIncrement, deathsIncrementTrend, deathsIncrementTrend === "up" ? "red" : "green"),
-    score3: scoreFactory("Casos esTimados", Math.round((deaths * 100) / 1), "orange", "* Basado en una tasa de fallecimienTos del 1%"),
-    score4: {score: (categories.length > 0 && categories[categories.length-1]) || ""},
-  };
-}
-
-const scoreFactory = (title, score, scoreColor, scoreInc, trend, trendColor) => {
-  return { title, score, scoreColor, scoreInc, trend, trendColor };
-}
-
 const transformGlobalResults = results => {
   const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei"]
   const cumulativeSeries = [];
@@ -175,7 +147,7 @@ const transformGlobalResults = results => {
         if(!start) {
           start = line[i] >= 50;
         }
-        if(line[1] === 'Spain' || line[1] === 'Italy' || line[1] === 'Germany') {
+        if(line[1] === 'Spain' || line[1] === 'Italy' || line[1] === 'Germany' || line[1] === 'France') {
           // if(i === 54) {
           //   const fix = (parseInt(line[i+1])-parseInt(line[i])) / 2;
           //   line[i] = parseInt(line[i]) + fix;
