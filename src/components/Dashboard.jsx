@@ -140,7 +140,7 @@ const renderChart = (series, container, title, sufix = false) => {
     },
     yAxis: {
         title: {
-            text: 'PosiTivos'
+            text: 'Fallecidos'
         }
     },
 
