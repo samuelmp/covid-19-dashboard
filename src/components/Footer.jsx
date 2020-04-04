@@ -26,11 +26,14 @@ export default class Footer extends Component {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item component={Box} display="flex" alignItems="flex-end" justifyContent="flex-end" sm={3}>
-          <Box py={2}>Fork me on GitHub</Box>
-          <IconButton edge="end" disableRipple color="primary" aria-label="menu" rel="noopener noreferrer" href="https://github.com/samuelmp/covid-19-dashboard" target="_blank" title="Fork me on GitHub">
-            <GitHubIcon />
-          </IconButton>
+        <Grid item component={Box} display="flex" alignItems="flex-end" justifyContent="flex-end">
+          <Box display="flex" alignItems="center">
+            <Box py={2}>Fork me on GitHub</Box>
+            <IconButton edge="end" disableRipple color="primary" aria-label="menu" rel="noopener noreferrer" href="https://github.com/samuelmp/covid-19-dashboard" target="_blank" title="Fork me on GitHub">
+              <GitHubIcon />
+            </IconButton>
+          </Box>
+
         </Grid>
       </Grid>
     )

@@ -15,11 +15,6 @@ const useStyles = makeStyles(theme => ({
 const getYAxis = (isResponsive = false) => {
 
   return [{ // Primary yAxis
-    labels: {
-      style: {
-          //color: Highcharts.getOptions().colors[2]
-      }
-    },
     title: {
       enabled: false,
     },
@@ -27,30 +22,18 @@ const getYAxis = (isResponsive = false) => {
     title: {
       enabled: !isResponsive,
       text: 'Fallecidos',
-      style: {
-          //color: Highcharts.getOptions().colors[4]
-      }
     },
     labels: {
-      style: {
-          //color: Highcharts.getOptions().colors[4]
-      }
+      align: 'right',
+      x: -4,
+      y: -6
     },
     opposite: true
   }, { // Secondary yAxis
     title: {
       enabled: !isResponsive,
       text: 'PosiTivos - AlTas',
-      style: {
-          //color: Highcharts.getOptions().colors[2]
-      }
     },
-    labels: {
-      style: {
-          //color: Highcharts.getOptions().colors[2]
-      }
-    },
-    // opposite: true
   }];
 
 };
@@ -59,12 +42,13 @@ const getHighchartsOptions = () => {
   return {
     chart: {
       type: 'spline',
+      marginTop: 40,
     },
 
     title: {
         text: "",
-        y: 4,
-        x: -8,
+        y: 2,
+        x: -2,
         align: "right"
     },
 

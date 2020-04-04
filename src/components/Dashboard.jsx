@@ -23,7 +23,7 @@ const styles = theme => ({
     borderBottom: "1px none #A2A39C60",
     paddingBottom: ".4rem",
     marginBottom: 0,
-    marginTop: "1rem",
+    marginTop: "1.5rem",
   },
 });
 
@@ -58,9 +58,9 @@ class Dashboard extends Component {
     return (
       <Box style={{padding: "0 2rem", paddingBottom: "1rem", paddingRight: "1.5rem"}}>
         <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
-        <Grid container component={Box} spacing={3} py={3} mb={1} >
+        <Grid container component={Box} spacing={3} pt={1} mb={1} >
           <Grid item xs={12} md={6} style={{paddingRight: "1.5rem"}}>
-            <Grid container spacing={3} component={Box}>
+            <Grid container spacing={3} component={Box} height="calc(100% + 24px)">
               <Grid item xs={12} sm={6} lg={6}>
                 <Score title="PosiTivos" color="blue" serie={spainSeries[0]} />
               </Grid>
@@ -85,7 +85,7 @@ class Dashboard extends Component {
           </Grid>
         </Grid>
         <Typography variant="h4" className={classes.mainTitle} >COVID-19 Evolución global basada en fallecimienTos</Typography>
-        <Grid container spacing={3} component={Box} pt={3} pr={0} >
+        <Grid container spacing={3} component={Box} pt={1} pr={0} >
           <Grid item xs={12} md={6} lg={4}>
             <WidgetContainer id="container1" style={{height: "400px"}} />
           </Grid>

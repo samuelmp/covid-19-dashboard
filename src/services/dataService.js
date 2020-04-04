@@ -153,14 +153,14 @@ const transformGlobalResults = results => {
           //   line[i] = parseInt(line[i]) + fix;
           // }
           start && growthData.push(Math.round(((parseInt(line[i])-parseInt(line[i-1])) / parseInt(line[i-1])) * 100));
-
         }
         start && incrementData.push(line[i]-line[i-1]);
         start && cumulativeData.push(line[i]-0);
       }
-      cumulativeData.length > 0 && cumulativeSeries.push({name: serieName, data: cumulativeData});
-      incrementData.length > 0 && incrementSeries.push({name: serieName, data: incrementData});
-      growthData.length > 0 && growthSeries.push({name: serieName, data: growthData});
+      const isSerieVisible = serieName !== "China";
+      cumulativeData.length > 0 && cumulativeSeries.push({name: serieName, data: cumulativeData, visible: isSerieVisible});
+      incrementData.length > 0 && incrementSeries.push({name: serieName, data: incrementData, visible: isSerieVisible});
+      growthData.length > 0 && growthSeries.push({name: serieName, data: growthData, visible: isSerieVisible});
     }
   });
   return {cumulativeSeries, incrementSeries, growthSeries}
