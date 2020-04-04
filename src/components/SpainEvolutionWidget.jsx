@@ -115,7 +115,6 @@ const SpainEvolutionWidget = ({ series, categories }) => {
   options.series = series || [];
 
   options.series.forEach( (serie, index, series) => {
-    console.log(seriesColors[index], serie)
     series[index] = { ...serie,
       fillColor: {
         stops: [[0, _styles.fade(seriesColors[index], 1)], [1, _styles.fade(seriesColors[index], .1)]]
@@ -124,7 +123,6 @@ const SpainEvolutionWidget = ({ series, categories }) => {
       color: _styles.fade(seriesColors[index], .8)
     };
   });
-  console.log(options.series)
   options.xAxis.categories = categories || [];
   options.title.text = "España";
   return (<>

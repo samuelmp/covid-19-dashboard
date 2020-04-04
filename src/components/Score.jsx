@@ -1,26 +1,39 @@
-import React from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 
 import { Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import TrendingUpRoundedIcon from '@material-ui/icons/TrendingUpRounded';
 import TrendingDownRoundedIcon from '@material-ui/icons/TrendingDownRounded';
 import WidgetContainer from './WidgetContainer.jsx';
+
+
+const _styles = require("@material-ui/core/styles");
+
+
 
 const scoreColors = {
   red: "rgba(231, 76, 60, .9)",
   green: "rgba(166, 226, 46, .9)",
   blue: "rgba(102, 207, 239, .9)",
-  orange: "#f39c12"
+  orange: "#f39c12",
+  grey: "#5e83a8"
 }
-
-const useStyles = makeStyles(theme => ({
+const styles = theme => ({
   scoreWidget: {
     flexDirection: "column",
     display: "flex",
     alignItems: "center",
     padding: "1rem",
     height: "calc(100% - 2rem)",
+    position: "relative",
+    "& .peity": {
+      position: "absolute",
+      bottom: 0,
+      borderRadius: 5
+    },
+    //minHeight: 110
+
   },
 
   title: {
@@ -54,38 +67,103 @@ const useStyles = makeStyles(theme => ({
   trendGreen: {
     color: "rgba(166, 226, 46, .9)",
     marginLeft: theme.spacing(1)
+  },
+
+
+});
+
+ class Score extends Component {
+
+  constructor(props) {
+    super(props)
+
+    this.state = {}
+
+    this.myRef = React.createRef();
+  }
+  transformDataResults = (serie) => {
+    //const score = serie.data[serie.data.length - 1];
+
+    let score = 0;
+    let scoreIncrement = 0;
+    let scoreTrend = 0;
+    let peityList = [];
+    //serie.data.forEach(e => score += e);
+
+    if(serie.data && serie.data.length > 0) {
+      for (let i = 0; i < serie.data.length; i++) {
+        const e = serie.data[i];
+        score += e;
+        if(serie.data.length >= 1 && (serie.data.length - 1) === i) {
+          scoreIncrement = serie.data[i];
+          scoreTrend = scoreIncrement - serie.data[i - 1];
+        }
+      }
+
+
+      const SLICE_MAX = 20;
+      const sliceCount = serie.data.length >= SLICE_MAX ? SLICE_MAX : serie.data.length;
+      peityList = serie.data.slice(-sliceCount);
+    }
+    //const scoreIncrement = score - serie.data[serie.data.length - 2];
+    //const scoreTrend = scoreIncrement > serie.data[serie.data.length - 2] - serie.data[serie.data.length - 3] ? "up" : "down";
+    this.setState({
+      score: score,
+      scoreIncrement:scoreIncrement,
+      scoreTrend: scoreTrend,
+      peityList: peityList
+    });
   }
 
-}));
 
-const Score = ({ title, score, scoreColor, scoreInc, trend, trendColor }) => {
-  const classes = useStyles();
+  componentDidUpdate(prevProps) {
 
-  const scoreColorCode = scoreColors[scoreColor || "green"] ;
-
-  const trendColorClass = trendColor ? (trendColor === "red" ? classes.trendRed : classes.trendGreen ) : "";
-
-
-  return (
-  <WidgetContainer className={classes.scoreWidget}>
-    {title && <div className={classes.title}>{title}</div>}
-    {score && <div className={classes.score} style={{color: scoreColorCode}}>
-      {score.toLocaleString("it-IT")}
-    </div>
+    const {color, serie} = this.props;
+    window.$(this.peityEl).peity("line", {
+      stroke: _styles.fade(scoreColors[color || "grey"], .125),
+      fill: _styles.fade(scoreColors[color || "grey"], .025),
+      width: "100%",
+      height: "90%",
+    });
+    console.log("----->->->->-> componentDidUpdate Serie1: ", serie);
+    if(!Object.equals(prevProps.serie, serie)) {
+      console.log("----->->->->-> componentDidUpdate Serie2: ", serie);
+      this.transformDataResults(serie)
     }
-    <div className={classes.scoreInc}>
-      {( typeof scoreInc === "number") ? scoreInc : <Typography  className={classes.scoreIncText}>{scoreInc}</Typography>}
-      {trend && (
-          (trend === "up" && <TrendingUpRoundedIcon className={trendColorClass} />) ||
-          (trend === "down" && <TrendingDownRoundedIcon className={trendColorClass} />) ||
-          ""
-      )}
-    </div>
-  </WidgetContainer>
-  );
-};
 
-export default Score;
+  }
+
+  render() {
+    const { classes, title, color, trendText = false, reverseTrend = false } = this.props;
+    const { score, scoreIncrement, scoreTrend, peityList } = this.state;
+    const scoreColorCode = scoreColors[color || "green"] ;
+
+    const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green"
+
+    const trendColorClass = trendColor === "red" ? classes.trendRed : classes.trendGreen;
+    return (
+      <WidgetContainer className={classes.scoreWidget} >
+        {title && <div className={classes.title}>{title}</div>}
+        {score && <div className={classes.score} style={{color: scoreColorCode}}>
+          {score.toLocaleString("it-IT")}
+        </div>
+        }
+
+        <div className={classes.scoreInc}>
+          {trendText ? <Typography  className={classes.scoreIncText}>{trendText}</Typography> : scoreIncrement}
+          {scoreTrend && !trendText && (
+              (scoreTrend > 0 && <TrendingUpRoundedIcon className={trendColorClass} />) ||
+              (scoreTrend < 0 && <TrendingDownRoundedIcon className={trendColorClass} />) ||
+              ""
+          )}
+        </div>
+        <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}>{peityList && peityList.join(",")}</span>
+      </WidgetContainer>
+    )
+  }
+}
+
+export default withStyles(styles, {withTheme: true})(Score);
 
 Score.propTypes = {
   title: PropTypes.oneOfType([
