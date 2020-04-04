@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import { Typography, Grid, Box, Link } from '@material-ui/core';
+import { Typography, Grid, Box } from '@material-ui/core';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -96,19 +96,6 @@ class Dashboard extends Component {
             <WidgetContainer id="container3" style={{height: "400px"}} />
           </Grid>
         </Grid>
-        <Grid container spacing={3} component={Box} pt={3} pb={3} >
-          <Score title="FuenTes de daTos" trendText={<>
-            <Link href="https://github.com/datadista/datasets" rel="noopener noreferrer" target="_blank">
-              DaTa from Spain of COVID-19 (by DaTadisTa)
-            </Link>
-            <br />
-            <Link href="https://github.com/CSSEGISandData/COVID-19" rel="noopener noreferrer" target="_blank">
-              DaTa ReposiTory by Johns Hopkins CSSE
-            </Link>
-            <br />
-            {spainCatergories && spainCatergories[spainCatergories.length-1]}
-          </>} />
-        </Grid>
       </Box>
     );
   }
@@ -147,10 +134,6 @@ const renderChart = (series, container, title, sufix = false) => {
     xAxis: {
       allowDecimals: false,
       tickmarkPlacement: 'on',
-        /*accessibility: {
-            rangeDescription: 'Range: 2010 to 2017'
-        },
-        categories: headers*/
     },
 
     series: series,

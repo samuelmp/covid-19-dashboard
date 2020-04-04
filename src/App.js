@@ -1,8 +1,8 @@
 import React from 'react';
 
 import Dashboard from './components/Dashboard.jsx';
-import Header from './components/Header.jsx'
-
+import Header from './components/Header.jsx';
+import Footer from './components/Footer.jsx'
 
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
     <>
       <Header />
       <Dashboard />
-      {/* <Footer /> */}
+      <Footer />
       {/* The core Firebase JS SDK is always required and must be listed first */}
       <script src="/__/firebase/7.13.1/firebase-app.js"></script>
 
