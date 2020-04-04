@@ -12,16 +12,51 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const getYAxis = (isResponsive = false) => {
 
+  return [{ // Primary yAxis
+    labels: {
+      style: {
+          //color: Highcharts.getOptions().colors[2]
+      }
+    },
+    title: {
+      enabled: false,
+    },
+  }, { // Secondary yAxis
+    title: {
+      enabled: !isResponsive,
+      text: 'Fallecidos',
+      style: {
+          //color: Highcharts.getOptions().colors[4]
+      }
+    },
+    labels: {
+      style: {
+          //color: Highcharts.getOptions().colors[4]
+      }
+    },
+    opposite: true
+  }, { // Secondary yAxis
+    title: {
+      enabled: !isResponsive,
+      text: 'PosiTivos - AlTas',
+      style: {
+          //color: Highcharts.getOptions().colors[2]
+      }
+    },
+    labels: {
+      style: {
+          //color: Highcharts.getOptions().colors[2]
+      }
+    },
+    // opposite: true
+  }];
 
-const SpainEvolutionWidget = ({ series, categories }) => {
-  const classes = useStyles();
-  const seriesColors = [
-    Highcharts.getOptions().colors[1],
-    Highcharts.getOptions().colors[2],
-    Highcharts.getOptions().colors[4]
-  ];
-  const options = {
+};
+
+const getHighchartsOptions = () => {
+  return {
     chart: {
       type: 'spline',
     },
@@ -67,50 +102,36 @@ const SpainEvolutionWidget = ({ series, categories }) => {
         }
       }]
     },
-    yAxis: [{ // Primary yAxis
-      labels: {
-        style: {
-            color: Highcharts.getOptions().colors[2]
-        }
-      },
-      title: {
-        enabled: false,
-        text: 'PosiTivos - AlTas',
-        style: {
-            color: Highcharts.getOptions().colors[1]
-        }
-      },
+    yAxis: getYAxis() ,
 
-    }, { // Secondary yAxis
-      // gridLineWidth: 0,
-      title: {
-        text: 'Fallecidos',
-        style: {
-            color: Highcharts.getOptions().colors[4]
+    responsive: {
+      rules: [{
+        condition: {
+          maxWidth: 500
+        },
+        chartOptions: {
+          legend: {
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom'
+          },
+          yAxis: getYAxis(true)
         }
-      },
-      labels: {
-        style: {
-            color: Highcharts.getOptions().colors[4]
-        }
-      },
-      opposite: true
-    }, { // Secondary yAxis
-      // gridLineWidth: 0,
-      title: {
-        text: 'PosiTivos - AlTas',
-        style: {
-            color: Highcharts.getOptions().colors[2]
-        }
-      },
-      labels: {
-        style: {
-            color: Highcharts.getOptions().colors[2]
-        }
-      },
-      // opposite: true
-    }],
+      }]
+    }
   };
+};
+
+
+const SpainEvolutionWidget = ({ series, categories }) => {
+  const classes = useStyles();
+  const seriesColors = [
+    Highcharts.getOptions().colors[1],
+    Highcharts.getOptions().colors[2],
+    Highcharts.getOptions().colors[4]
+  ];
+
+  const options = getHighchartsOptions();
 
   options.series = series || [];
 
