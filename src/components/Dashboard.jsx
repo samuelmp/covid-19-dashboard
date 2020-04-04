@@ -56,10 +56,10 @@ class Dashboard extends Component {
     const {classes} = this.props;
     const { spainSeries, spainCatergories } = this.state;
     return (
-      <Box style={{padding: "0 2rem", paddingBottom: "1rem"}}>
+      <Box style={{padding: "0 2rem", paddingBottom: "1rem", paddingRight: "1.5rem"}}>
         <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
         <Grid container component={Box} spacing={3} py={3} mb={1} >
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} style={{paddingRight: "1.5rem"}}>
             <Grid container spacing={3} component={Box}>
               <Grid item xs={12} sm={6} lg={6}>
                 <Score title="PosiTivos" color="blue" serie={spainSeries[0]} />
@@ -78,7 +78,7 @@ class Dashboard extends Component {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} component={Box} pr={0}>
             <Grid container spacing={0} component={Box} pr={0}>
               <SpainEvolutionWidget series={spainSeries} categories={spainCatergories} />
             </Grid>
