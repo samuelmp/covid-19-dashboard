@@ -95,6 +95,11 @@ import Highcharts from 'highcharts';
             layout: 'horizontal',
             align: 'center',
             verticalAlign: 'bottom'
+          },
+          yAxis: {
+            title: {
+              enabled: false,
+            }
           }
         }
       }]

@@ -87,7 +87,7 @@ const styles = theme => ({
     let score = 0;
     let scoreIncrement = 0;
     let scoreTrend = 0;
-    let peityList = [];
+    let peityList = false;
     //serie.data.forEach(e => score += e);
 
     if(serie.data && serie.data.length > 0) {
@@ -157,7 +157,7 @@ const styles = theme => ({
               ""
           )}
         </div>
-        <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}>{peityList && peityList.join(",")}</span>
+        {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}> {peityList.join(",")}</span>}
       </WidgetContainer>
     )
   }
