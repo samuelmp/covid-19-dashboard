@@ -1,6 +1,25 @@
 
 import Papa from 'papaparse';
-import { format, parse } from 'date-fns';
+import { format, parse, getTime } from 'date-fns';
+import cloneDeep from 'lodash.clonedeep';
+
+const countriesData = {};
+
+const typeTemplate = {
+  acum: [],
+  abs: [],
+  score: 0,
+  scoreInc: 0,
+  scoreTrend: 0,
+};
+
+const countryTemplate = {
+  color: "#FFF",
+  cases: cloneDeep(typeTemplate),
+  recovered: cloneDeep(typeTemplate),
+  deaths: cloneDeep(typeTemplate)
+}
+
 
 
 export const requestData = (callback) => {
@@ -124,8 +143,56 @@ const transformSpainResults = results => {
       seriesNew[2].data.push(line[3] ? parseInt(line[3]) - lastDataSerie2 : 0);
     }
   });
+
+
+  const spainData = addNewCountryData("Spain");
+
+
+  results.forEach((line, index) => {
+    if(index > 0) {
+
+      const timestamp = getTime(parse(line[0], "yyyy-MM-dd", new Date()));
+      // Casos
+      const casesAcum = (line[1] && parseInt(line[1])) || 0;
+      const lastCasesAcum = (index > 0 && parseInt(results[index-1][1])) || 0;
+      const casesAbs = (casesAcum && (casesAcum - lastCasesAcum) ) || 0;
+      spainData.cases.acum.push([timestamp, casesAcum]);
+      spainData.cases.abs.push([timestamp, casesAbs]);
+
+      // Recuperados
+      const recoveredAcum = (line[2] && parseInt(line[2])) || 0;
+      const lastRecoveredAcum = (index > 0 && parseInt(results[index-1][2])) || 0;
+      const recoveredAbs = (recoveredAcum && (recoveredAcum - lastRecoveredAcum) ) || 0;
+      spainData.recovered.acum.push([timestamp, recoveredAcum]);
+      spainData.recovered.abs.push([timestamp, recoveredAbs]);
+
+      // Fallecidos
+      const deathsAcum = (line[3] && parseInt(line[3])) || 0;
+      const lastDeathsAcum = (index > 0 && parseInt(results[index-1][3])) || 0;
+      const deathsAbs = (deathsAcum && (deathsAcum - lastDeathsAcum) ) || 0;
+      spainData.deaths.acum.push([timestamp, deathsAcum]);
+      spainData.deaths.abs.push([timestamp, deathsAbs]);
+
+    }
+  });
+
+  spainData.cases =     { ...spainData.cases,      ...getScores(spainData.cases)};
+  spainData.recovered = { ...spainData.recovered,  ...getScores(spainData.recovered)};
+  spainData.deaths =    { ...spainData.deaths,     ...getScores(spainData.deaths)};
+
+  console.log(spainData);
+
   return {categories, series, seriesNew};
 };
+
+const getScores = (dataObj) => {
+  const score = dataObj.acum.slice(-1)[0][1];
+  const scoreInc = dataObj.abs.slice(-1)[0][1];
+  const scoreTrend = scoreInc - dataObj.abs.slice(-2)[0][1];
+  return {score, scoreInc, scoreTrend};
+}
+
+
 
 
 const transformGlobalResults = results => {
@@ -166,3 +233,15 @@ const transformGlobalResults = results => {
   return {cumulativeSeries, incrementSeries, growthSeries}
 
 }
+
+
+const addNewCountryData = (countryId) => {
+  if(!countriesData[countryId]) {
+    countriesData[countryId] = cloneDeep(countryTemplate);
+  }
+  return getCountryData(countryId);
+};
+
+const getCountryData = (countryId) => {
+  return countriesData[countryId];
+};

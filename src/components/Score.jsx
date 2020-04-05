@@ -23,14 +23,16 @@ const styles = theme => ({
   scoreWidget: {
     flexDirection: "column",
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     padding: "1rem",
     height: "calc(100% - 2rem)",
     position: "relative",
+    justifyContent: "flex-start",
     "& .peity": {
       position: "absolute",
       bottom: 0,
-      borderRadius: 5
+      borderRadius: 5,
+      left: 0,
     },
     //minHeight: 110
 
@@ -40,7 +42,7 @@ const styles = theme => ({
     fontSize: "1.8rem",
   },
   score: {
-    fontSize: "3.5rem",
+    fontSize: "3.3rem",
   },
 
   scoreInc: {
