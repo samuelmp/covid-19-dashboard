@@ -49,7 +49,13 @@ import Highcharts from 'highcharts';
       "lineColor": "rgba(255,255,255,.3)",
       "minorGridLineColor": "rgba(255,255,255,.3)",
       "tickColor": "rgba(255,255,255,.3)",
-      "tickWidth": 0
+      "tickWidth": 0,
+      crosshair: {
+        color: "rgba(204,214,235,0.075)",
+        width: 18
+      }
+
+
     },
     "yAxis": {
       "gridLineDashStyle": "Dot",
