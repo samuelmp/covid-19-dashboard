@@ -4,6 +4,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import WidgetContainer from './WidgetContainer.jsx';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
+import { es as esLocale } from 'date-fns/locale/';
+import { format } from 'date-fns';
 var _styles = require("@material-ui/core/styles");
 
 const useStyles = makeStyles(theme => ({
@@ -53,11 +55,18 @@ const getHighchartsOptions = () => {
     },
 
     xAxis: {
-      tickmarkPlacement: 'on',
+      type: 'datetime',
+      labels: {
+        formatter: function () {
+          return format(this.value, "dd MMM", {
+            locale: esLocale
+          });
+        },
+      },
       plotLines: [{
         color: 'rgba(255,255,255,.3)',
         width: 2,
-        value: 9,
+        value: 1584140400000,
         dashStyle: "Dash",
         label: {
           text: 'Estado Alarma',
@@ -72,7 +81,7 @@ const getHighchartsOptions = () => {
       },{
         color: 'rgba(255,255,255,.3)',
         width: 2,
-        value: 25.5,
+        value: 1585519200000,
         dashStyle: "Dash",
         label: {
           text: 'Trabajos Esenciales',
@@ -106,18 +115,40 @@ const getHighchartsOptions = () => {
   };
 };
 
+const buildSeriesData = data => {
 
-const SpainEvolutionWidget = ({ series, categories }) => {
+  const series = [];
+
+  series.push({
+    name: "Casos",
+    data: data.cases.abs
+  });
+
+  series.push({
+    name: "Altas",
+    data: data.recovered.abs
+  });
+
+  series.push({
+    name: "Fallecidos",
+    data: data.deaths.abs,
+    yAxis: 1
+  });
+
+  return series;
+};
+
+const SpainEvolutionWidget = ({ series, categories, data }) => {
   const classes = useStyles();
   const seriesColors = [
     Highcharts.getOptions().colors[1],
     Highcharts.getOptions().colors[2],
     Highcharts.getOptions().colors[4]
   ];
-
   const options = getHighchartsOptions();
 
-  options.series = series || [];
+  //options.series = series || [];
+  options.series = (data && buildSeriesData(data)) || [];
 
   options.series.forEach( (serie, index, series) => {
     series[index] = { ...serie,
@@ -128,8 +159,8 @@ const SpainEvolutionWidget = ({ series, categories }) => {
       color: _styles.fade(seriesColors[index], .8)
     };
   });
-  options.xAxis.categories = categories || [];
-  options.title.text = "España";
+  //options.xAxis.categories = categories || [];
+  options.title.text = "DaTos diarios";
   return (<>
     <WidgetContainer className={classes.root}>
       <HighchartsReact highcharts={Highcharts} options={options} containerProps = {{ style: {width: "100%"} }} />

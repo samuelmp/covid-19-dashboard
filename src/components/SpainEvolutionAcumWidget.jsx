@@ -4,6 +4,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import WidgetContainer from './WidgetContainer.jsx';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
+import { es as esLocale } from 'date-fns/locale/';
+import { format } from 'date-fns';
+
 var _styles = require("@material-ui/core/styles");
 
 const useStyles = makeStyles(theme => ({
@@ -12,58 +15,42 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const getYAxis = (isResponsive = false) => {
-
-  return [{ // Primary yAxis
-    title: {
-      enabled: false,
-    },
-  }, { // Secondary yAxis
-    title: {
-      enabled: !isResponsive,
-      text: 'Fallecidos',
-    },
-    labels: {
-      align: 'right',
-      x: -4,
-      y: -6
-    },
-    opposite: true
-  }, { // Secondary yAxis
-    title: {
-      enabled: !isResponsive,
-      text: 'PosiTivos - AlTas',
-    },
-  }];
-
-};
-
 const getHighchartsOptions = () => {
+
+
   return {
     chart: {
-      type: 'spline',
+      type: 'area',
       marginTop: 40,
     },
 
     title: {
-        text: "",
-        y: 2,
-        x: -2,
-        align: "right"
+      text: "",
+      y: 2,
+      x: -2,
+      align: "right"
     },
 
     xAxis: {
-      tickmarkPlacement: 'on',
+      type: 'datetime',
+      labels: {
+        formatter: function () {
+          return format(this.value, "dd MMM", {
+            locale: esLocale
+          });
+        },
+      },
+
       plotLines: [{
         color: 'rgba(255,255,255,.3)',
         width: 2,
-        value: 9,
+        value: 1584140400000,
         dashStyle: "Dash",
         label: {
           text: 'Estado Alarma',
           verticalAlign: 'Top',
           textAlign: 'left',
-          y: 10,
+          y: 8,
           x: 8,
           style: {
             color: '#FFFFFF',
@@ -72,13 +59,13 @@ const getHighchartsOptions = () => {
       },{
         color: 'rgba(255,255,255,.3)',
         width: 2,
-        value: 25.5,
+        value: 1585519200000,
         dashStyle: "Dash",
         label: {
           text: 'Trabajos Esenciales',
           verticalAlign: 'Top',
           textAlign: 'left',
-          y: 100,
+          y: 8,
           x: 8,
           style: {
             color: '#FFFFFF',
@@ -86,8 +73,16 @@ const getHighchartsOptions = () => {
         }
       }]
     },
-    yAxis: getYAxis() ,
-
+    plotOptions: {
+      area: {
+        stacking: undefined,
+      },
+    },
+    yAxis: {
+      title: {
+        enabled: false,
+      },
+    } ,
     responsive: {
       rules: [{
         condition: {
@@ -99,25 +94,45 @@ const getHighchartsOptions = () => {
             align: 'center',
             verticalAlign: 'bottom'
           },
-          yAxis: getYAxis(true)
         }
       }]
     }
   };
 };
 
+const buildSeriesData = data => {
 
-const SpainEvolutionAcumWidget = ({ series, categories }) => {
+  const series = [];
+
+  series.push({
+    name: "Casos",
+    data: data.cases.acum
+  });
+
+  series.push({
+    name: "Altas",
+    data: data.recovered.acum
+  });
+
+  series.push({
+    name: "Fallecidos",
+    data: data.deaths.acum
+  });
+
+  return series;
+};
+
+
+const SpainEvolutionAcumWidget = ({ data }) => {
   const classes = useStyles();
   const seriesColors = [
     Highcharts.getOptions().colors[1],
     Highcharts.getOptions().colors[2],
     Highcharts.getOptions().colors[4]
   ];
-
   const options = getHighchartsOptions();
 
-  options.series = series || [];
+  options.series = (data && buildSeriesData(data)) || [];
 
   options.series.forEach( (serie, index, series) => {
     series[index] = { ...serie,
@@ -128,8 +143,7 @@ const SpainEvolutionAcumWidget = ({ series, categories }) => {
       color: _styles.fade(seriesColors[index], .8)
     };
   });
-  options.xAxis.categories = categories || [];
-  options.title.text = "España";
+  options.title.text = "DaTos acumulados";
   return (<>
     <WidgetContainer className={classes.root}>
       <HighchartsReact highcharts={Highcharts} options={options} containerProps = {{ style: {width: "100%"} }} />
@@ -137,4 +151,4 @@ const SpainEvolutionAcumWidget = ({ series, categories }) => {
   </>);
 };
 
-export default SpainEvolutionWidget;
+export default SpainEvolutionAcumWidget;

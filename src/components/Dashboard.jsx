@@ -12,6 +12,7 @@ import WidgetContainer from './WidgetContainer.jsx';
 import Highcharts from 'highcharts';
 
 import SpainEvolutionWidget from './SpainEvolutionWidget.jsx';
+import SpainEvolutionAcumWidget from './SpainEvolutionAcumWidget.jsx';
 
 import { es as esLocale } from 'date-fns/locale/';
 import { format } from 'date-fns'
@@ -36,7 +37,6 @@ class Dashboard extends Component {
     super(props);
     this.state = {
       spainSeries: [],
-      spainCatergories: [],
       countriesData: {}
     };
   }
@@ -45,7 +45,6 @@ class Dashboard extends Component {
     requestData((data, countriesData) => {
       this.setState({
         spainSeries: data.spain.spainSeriesNew,
-        spainCatergories: data.spain.spainCatergories,
         countriesData: countriesData
       });
 
@@ -58,7 +57,7 @@ class Dashboard extends Component {
 
   render() {
     const {classes} = this.props;
-    const { spainSeries, spainCatergories, countriesData } = this.state;
+    const { spainSeries, countriesData } = this.state;
     const spainData = countriesData["Spain"] || false;
     let updateString = "";
     if(spainData) {
@@ -85,7 +84,7 @@ class Dashboard extends Component {
         </Grid>
 
         <Grid container component={Box} spacing={3} pt={1} mb={1} >
-          <Grid item xs={12} md={6} style={{paddingRight: "1.5rem"}}>
+          <Grid item xs={12} lg={4} style={{paddingRight: "1.5rem"}}>
             <Grid container spacing={3} component={Box} height="calc(100% + 24px)">
               <Grid item xs={12} sm={6} lg={6}>
                 <Score title="PosiTivos" color="blue" serie={spainSeries[0]} />
@@ -104,9 +103,14 @@ class Dashboard extends Component {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12} md={6} component={Box} pr={0}>
+          <Grid item xs={12} md={6} lg={4} component={Box} pr={0}>
             <Grid container spacing={0} component={Box} pr={0}>
-              <SpainEvolutionWidget series={spainSeries} categories={spainCatergories} />
+              <SpainEvolutionWidget data={spainData} />
+            </Grid>
+          </Grid>
+          <Grid item xs={12} md={6} lg={4} component={Box} pr={0}>
+            <Grid container spacing={0} component={Box} pr={0}>
+              <SpainEvolutionAcumWidget data={spainData} />
             </Grid>
           </Grid>
         </Grid>

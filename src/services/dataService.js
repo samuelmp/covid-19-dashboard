@@ -32,6 +32,7 @@ export const requestData = (callback) => {
 
   Papa.parse("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/nacional_covid19.csv", {
     download: true,
+    skipEmptyLines: true,
     complete: function(results) {
       console.log("Parsing Spain results...");
       rawDataObj.spain = results.data;
@@ -162,7 +163,6 @@ const transformSpainResults = (results, dates) => {
 
   results.forEach((line, index) => {
     if(index > 0) {
-
       const timestamp = getTime(parse(line[0], "yyyy-MM-dd", new Date()));
       // Casos
       const casesAcum = (line[1] && parseInt(line[1])) || 0;
