@@ -1,6 +1,26 @@
 
 import Papa from 'papaparse';
-import { format, parse } from 'date-fns';
+import { format, parse, getTime } from 'date-fns';
+import cloneDeep from 'lodash.clonedeep';
+
+const countriesData = {};
+
+const typeTemplate = {
+  acum: [],
+  abs: [],
+  score: 0,
+  scoreInc: 0,
+  scoreTrend: 0,
+};
+
+const countryTemplate = {
+  color: "#FFF",
+  cases: cloneDeep(typeTemplate),
+  recovered: cloneDeep(typeTemplate),
+  deaths: cloneDeep(typeTemplate),
+  updateDate: 0,
+}
+
 
 
 export const requestData = (callback) => {
@@ -15,7 +35,17 @@ export const requestData = (callback) => {
     complete: function(results) {
       console.log("Parsing Spain results...");
       rawDataObj.spain = results.data;
-      transformData(rawDataObj, callback);
+
+      Papa.parse("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/fechas.md", {
+        download: true,
+        delimiter: "|",
+        skipEmptyLines: true,
+        complete: function(datesResults) {
+
+          rawDataObj.spain_dates = datesResults.data;
+          transformData(rawDataObj, callback);
+        }
+      });
     },
     error: function(err, file, inputElem, reason) {
       console.log(err);
@@ -42,14 +72,14 @@ export const requestData = (callback) => {
 
 const transformData = (rawDataObj, callback) => {
 
-  if(rawDataObj.spain && rawDataObj.global_deaths && rawDataObj.spain.length > 1 && rawDataObj.global_deaths.length > 1  ) {
+  if(rawDataObj.spain && rawDataObj.global_deaths && rawDataObj.spain.length > 1 && rawDataObj.global_deaths.length > 1 && rawDataObj.spain_dates  ) {
 
     rawDataObj = handleRawData(rawDataObj);
     const chartData = {
       spain: false,
       global_deaths: false,
     }
-    const spainResults = transformSpainResults(rawDataObj.spain);
+    const spainResults = transformSpainResults(rawDataObj.spain, rawDataObj.spain_dates);
     chartData.spain = {
       spainSeries: spainResults.series,
       spainSeriesNew: spainResults.seriesNew,
@@ -58,7 +88,7 @@ const transformData = (rawDataObj, callback) => {
 
     chartData.global_deaths = transformGlobalResults(rawDataObj.global_deaths);
 
-    callback(chartData);
+    callback(chartData, countriesData);
   }
 }
 
@@ -89,11 +119,12 @@ const handleRawData = (rawDataObj) => {
 };
 
 
-const transformSpainResults = results => {
+const transformSpainResults = (results, dates) => {
 
   const categories = [];
   const series = [];
   let seriesNew = [];
+
   results.forEach((line, index) => {
     if(index === 0) {
       series.push(
@@ -124,8 +155,66 @@ const transformSpainResults = results => {
       seriesNew[2].data.push(line[3] ? parseInt(line[3]) - lastDataSerie2 : 0);
     }
   });
+
+
+  const spainData = addNewCountryData("Spain");
+
+
+  results.forEach((line, index) => {
+    if(index > 0) {
+
+      const timestamp = getTime(parse(line[0], "yyyy-MM-dd", new Date()));
+      // Casos
+      const casesAcum = (line[1] && parseInt(line[1])) || 0;
+      const lastCasesAcum = (index > 0 && parseInt(results[index-1][1])) || 0;
+      const casesAbs = (casesAcum && (casesAcum - lastCasesAcum) ) || 0;
+      spainData.cases.acum.push([timestamp, casesAcum]);
+      spainData.cases.abs.push([timestamp, casesAbs]);
+
+      // Recuperados
+      const recoveredAcum = (line[2] && parseInt(line[2])) || 0;
+      const lastRecoveredAcum = (index > 0 && parseInt(results[index-1][2])) || 0;
+      const recoveredAbs = (recoveredAcum && (recoveredAcum - lastRecoveredAcum) ) || 0;
+      spainData.recovered.acum.push([timestamp, recoveredAcum]);
+      spainData.recovered.abs.push([timestamp, recoveredAbs]);
+
+      // Fallecidos
+      const deathsAcum = (line[3] && parseInt(line[3])) || 0;
+      const lastDeathsAcum = (index > 0 && parseInt(results[index-1][3])) || 0;
+      const deathsAbs = (deathsAcum && (deathsAcum - lastDeathsAcum) ) || 0;
+      spainData.deaths.acum.push([timestamp, deathsAcum]);
+      spainData.deaths.abs.push([timestamp, deathsAbs]);
+
+    }
+  });
+
+  spainData.cases =     { ...spainData.cases,      ...getScores(spainData.cases)};
+  spainData.recovered = { ...spainData.recovered,  ...getScores(spainData.recovered)};
+  spainData.deaths =    { ...spainData.deaths,     ...getScores(spainData.deaths)};
+
+  let updateDate = false;
+  for (let index = 0; index < dates.length; index++) {
+    const line = dates[index];
+    if(line[2] && line[2].indexOf("nacional_covid19.csv") >= 0) {
+      updateDate = new Date(line[1].trim()).getTime();
+      break;
+    }
+  }
+  spainData.updateDate = updateDate;
+
+  console.log(spainData);
+
   return {categories, series, seriesNew};
 };
+
+const getScores = (dataObj) => {
+  const score = dataObj.acum.slice(-1)[0][1];
+  const scoreInc = dataObj.abs.slice(-1)[0][1];
+  const scoreTrend = scoreInc - dataObj.abs.slice(-2)[0][1];
+  return {score, scoreInc, scoreTrend};
+}
+
+
 
 
 const transformGlobalResults = results => {
@@ -153,16 +242,28 @@ const transformGlobalResults = results => {
           //   line[i] = parseInt(line[i]) + fix;
           // }
           start && growthData.push(Math.round(((parseInt(line[i])-parseInt(line[i-1])) / parseInt(line[i-1])) * 100));
-
         }
         start && incrementData.push(line[i]-line[i-1]);
         start && cumulativeData.push(line[i]-0);
       }
-      cumulativeData.length > 0 && cumulativeSeries.push({name: serieName, data: cumulativeData});
-      incrementData.length > 0 && incrementSeries.push({name: serieName, data: incrementData});
-      growthData.length > 0 && growthSeries.push({name: serieName, data: growthData});
+      const isSerieVisible = serieName !== "China";
+      cumulativeData.length > 0 && cumulativeSeries.push({name: serieName, data: cumulativeData, visible: isSerieVisible});
+      incrementData.length > 0 && incrementSeries.push({name: serieName, data: incrementData, visible: isSerieVisible});
+      growthData.length > 0 && growthSeries.push({name: serieName, data: growthData, visible: isSerieVisible});
     }
   });
   return {cumulativeSeries, incrementSeries, growthSeries}
 
 }
+
+
+const addNewCountryData = (countryId) => {
+  if(!countriesData[countryId]) {
+    countriesData[countryId] = cloneDeep(countryTemplate);
+  }
+  return getCountryData(countryId);
+};
+
+const getCountryData = (countryId) => {
+  return countriesData[countryId];
+};

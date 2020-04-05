@@ -54,7 +54,14 @@ import Highcharts from 'highcharts';
       "lineColor": "rgba(255,255,255,.3)",
       "minorGridLineColor": "rgba(255,255,255,.3)",
       "tickColor": "rgba(255,255,255,.3)",
-      "tickWidth": 0
+      "tickWidth": 0,
+      labels: {
+        align: 'left',
+        x: 2,
+        y: -6
+      }
+
+
     },
     plotOptions: {
       area: {

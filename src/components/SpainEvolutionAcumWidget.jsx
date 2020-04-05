@@ -107,7 +107,7 @@ const getHighchartsOptions = () => {
 };
 
 
-const SpainEvolutionWidget = ({ series, categories }) => {
+const SpainEvolutionAcumWidget = ({ series, categories }) => {
   const classes = useStyles();
   const seriesColors = [
     Highcharts.getOptions().colors[1],

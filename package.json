@@ -13,6 +13,7 @@
     "highcharts": "8.0.4",
     "highcharts-react-official": "^3.0.0",
     "jquery": "3.4.1",
+    "lodash.clonedeep": "^4.5.0",
     "papaparse": "5.1.1",
     "peity": "^3.3.0",
     "prop-types": "^15.7.2",

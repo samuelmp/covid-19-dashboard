@@ -7,18 +7,16 @@ import TrendingUpRoundedIcon from '@material-ui/icons/TrendingUpRounded';
 import TrendingDownRoundedIcon from '@material-ui/icons/TrendingDownRounded';
 import WidgetContainer from './WidgetContainer.jsx';
 
-
 const _styles = require("@material-ui/core/styles");
 
-
-
 const scoreColors = {
-  red: "rgba(231, 76, 60, .9)",
-  green: "rgba(166, 226, 46, .9)",
-  blue: "rgba(102, 207, 239, .9)",
+  red:    "rgba(231, 76, 60, .9)",
+  green:  "rgba(166, 226, 46, .9)",
+  blue:   "rgba(102, 207, 239, .9)",
   orange: "#f39c12",
-  grey: "#5e83a8"
+  grey:   "#5e83a8"
 }
+
 const styles = theme => ({
   scoreWidget: {
     flexDirection: "column",
@@ -27,10 +25,12 @@ const styles = theme => ({
     padding: "1rem",
     height: "calc(100% - 2rem)",
     position: "relative",
+    justifyContent: "flex-start",
     "& .peity": {
       position: "absolute",
       bottom: 0,
-      borderRadius: 5
+      borderRadius: 5,
+      left: 0,
     },
     //minHeight: 110
 
@@ -40,12 +40,15 @@ const styles = theme => ({
     fontSize: "1.8rem",
   },
   score: {
-    fontSize: "3.5rem",
+    fontSize: "3.3rem",
   },
 
   scoreInc: {
     fontSize: "1.5rem",
     textAlign: "center",
+    display: "inline-flex",
+    alignItems: "center",
+
     '& i' : {
       marginLeft: ".6rem"
     },
@@ -58,6 +61,12 @@ const styles = theme => ({
     fontSize: "1rem",
     textAlign: "center",
     marginTop: "1rem"
+  },
+  scoreDifference: {
+    fontSize: "1.2rem",
+    display: "inline-flex",
+    marginLeft: theme.spacing(1),
+    opacity: .8,
   },
   trendRed: {
     color: "rgba(231, 76, 60, .9)",
@@ -120,14 +129,12 @@ const styles = theme => ({
 
     const {color, serie} = this.props;
     window.$(this.peityEl).peity("line", {
-      stroke: _styles.fade(scoreColors[color || "grey"], .125),
-      fill: _styles.fade(scoreColors[color || "grey"], .025),
+      stroke: _styles.fade(scoreColors[color || "grey"], .175),
+      fill: _styles.fade(scoreColors[color || "grey"], .075),
       width: "100%",
       height: "90%",
     });
-    console.log("----->->->->-> componentDidUpdate Serie1: ", serie);
     if(!Object.equals(prevProps.serie, serie)) {
-      console.log("----->->->->-> componentDidUpdate Serie2: ", serie);
       this.transformDataResults(serie)
     }
 
@@ -138,7 +145,8 @@ const styles = theme => ({
     const { score, scoreIncrement, scoreTrend, peityList } = this.state;
     const scoreColorCode = scoreColors[color || "green"] ;
 
-    const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green"
+    // const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green";
+    const trendColor = reverseTrend ? (scoreTrend < 0 ? "red" : "green") : (scoreTrend > 0 ? "red" : "green");
 
     const trendColorClass = trendColor === "red" ? classes.trendRed : classes.trendGreen;
     return (
@@ -156,6 +164,8 @@ const styles = theme => ({
               (scoreTrend < 0 && <TrendingDownRoundedIcon className={trendColorClass} />) ||
               ""
           )}
+          {!trendText && <Typography className={classes.scoreDifference}>{(scoreTrend > 0 ? "+" : "") + scoreTrend}</Typography>}
+
         </div>
         {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}> {peityList.join(",")}</span>}
       </WidgetContainer>
