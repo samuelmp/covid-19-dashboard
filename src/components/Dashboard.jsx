@@ -13,6 +13,9 @@ import Highcharts from 'highcharts';
 
 import SpainEvolutionWidget from './SpainEvolutionWidget.jsx';
 
+import { es as esLocale } from 'date-fns/locale/';
+import { format } from 'date-fns'
+
 const styles = theme => ({
   root: {
     width: '100%',
@@ -21,9 +24,8 @@ const styles = theme => ({
     fontSize: "2rem",
     textAlign: "center",
     borderBottom: "1px none #A2A39C60",
-    paddingBottom: ".4rem",
+    padding: "1rem",
     marginBottom: 0,
-    marginTop: "1.5rem",
   },
 });
 
@@ -34,15 +36,17 @@ class Dashboard extends Component {
     super(props);
     this.state = {
       spainSeries: [],
-      spainCatergories: []
+      spainCatergories: [],
+      countriesData: {}
     };
   }
 
   componentDidMount = () => {
-    requestData((data) => {
+    requestData((data, countriesData) => {
       this.setState({
         spainSeries: data.spain.spainSeriesNew,
         spainCatergories: data.spain.spainCatergories,
+        countriesData: countriesData
       });
 
       renderChart(data.global_deaths.cumulativeSeries, "container1", "FallecimienTos acumulados");
@@ -54,10 +58,32 @@ class Dashboard extends Component {
 
   render() {
     const {classes} = this.props;
-    const { spainSeries, spainCatergories } = this.state;
+    const { spainSeries, spainCatergories, countriesData } = this.state;
+    const spainData = countriesData["Spain"] || false;
+    let updateString = "";
+    if(spainData) {
+      const udateDate = spainData.updateDate;
+      updateString = format(udateDate, "EEEE dd MMMM 'a las' H:mm ", {
+        locale: esLocale
+      });
+    }
+
+
     return (
       <Box style={{padding: "0 2rem", paddingBottom: "1rem", paddingRight: "1.5rem"}}>
-        <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
+        <Grid container spacing={3} component={Box} pt={1} >
+          <Grid item xs={3} component={Box} display="flex" alignItems="center">
+            <Grid container spacing={0} direction="column" >
+              <Grid item><Typography variant="body1" >ACTUALIZADO: </Typography></Grid>
+              <Grid item><Typography variant="body1" color="primary" >{updateString.toUpperCase()}</Typography></Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs>
+            <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
+          </Grid>
+          <Grid item xs={3}></Grid>
+        </Grid>
+
         <Grid container component={Box} spacing={3} pt={1} mb={1} >
           <Grid item xs={12} md={6} style={{paddingRight: "1.5rem"}}>
             <Grid container spacing={3} component={Box} height="calc(100% + 24px)">
@@ -84,7 +110,19 @@ class Dashboard extends Component {
             </Grid>
           </Grid>
         </Grid>
-        <Typography variant="h4" className={classes.mainTitle} >COVID-19 Evolución global basada en fallecimienTos</Typography>
+
+        <Grid container spacing={3} component={Box} pt={1} >
+          {/* <Grid item xs={3} component={Box} display="flex" alignItems="center">
+            <Grid container spacing={0} direction="column" >
+              <Grid item><Typography variant="body1" >ACTUALIZADO: </Typography></Grid>
+              <Grid item><Typography variant="body1" color="primary" >{updateString.toUpperCase()}</Typography></Grid>
+            </Grid>
+          </Grid> */}
+          <Grid item xs>
+            <Typography variant="h4" className={classes.mainTitle} >COVID-19 Evolución global basada en fallecimienTos</Typography>
+          </Grid>
+          {/* <Grid item xs={3}></Grid> */}
+        </Grid>
         <Grid container spacing={3} component={Box} pt={1} pr={0} >
           <Grid item xs={12} md={6} lg={4}>
             <WidgetContainer id="container1" style={{height: "400px"}} />

@@ -7,23 +7,21 @@ import TrendingUpRoundedIcon from '@material-ui/icons/TrendingUpRounded';
 import TrendingDownRoundedIcon from '@material-ui/icons/TrendingDownRounded';
 import WidgetContainer from './WidgetContainer.jsx';
 
-
 const _styles = require("@material-ui/core/styles");
 
-
-
 const scoreColors = {
-  red: "rgba(231, 76, 60, .9)",
-  green: "rgba(166, 226, 46, .9)",
-  blue: "rgba(102, 207, 239, .9)",
+  red:    "rgba(231, 76, 60, .9)",
+  green:  "rgba(166, 226, 46, .9)",
+  blue:   "rgba(102, 207, 239, .9)",
   orange: "#f39c12",
-  grey: "#5e83a8"
+  grey:   "#5e83a8"
 }
+
 const styles = theme => ({
   scoreWidget: {
     flexDirection: "column",
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
     padding: "1rem",
     height: "calc(100% - 2rem)",
     position: "relative",
@@ -69,7 +67,6 @@ const styles = theme => ({
     display: "inline-flex",
     marginLeft: theme.spacing(1),
     opacity: .8,
-    marginTop: theme.spacing(.5)
   },
   trendRed: {
     color: "rgba(231, 76, 60, .9)",
@@ -148,7 +145,8 @@ const styles = theme => ({
     const { score, scoreIncrement, scoreTrend, peityList } = this.state;
     const scoreColorCode = scoreColors[color || "green"] ;
 
-    const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green"
+    // const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green";
+    const trendColor = reverseTrend ? (scoreTrend < 0 ? "red" : "green") : (scoreTrend > 0 ? "red" : "green");
 
     const trendColorClass = trendColor === "red" ? classes.trendRed : classes.trendGreen;
     return (

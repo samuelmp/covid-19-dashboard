@@ -17,7 +17,8 @@ const countryTemplate = {
   color: "#FFF",
   cases: cloneDeep(typeTemplate),
   recovered: cloneDeep(typeTemplate),
-  deaths: cloneDeep(typeTemplate)
+  deaths: cloneDeep(typeTemplate),
+  updateDate: 0,
 }
 
 
@@ -34,7 +35,17 @@ export const requestData = (callback) => {
     complete: function(results) {
       console.log("Parsing Spain results...");
       rawDataObj.spain = results.data;
-      transformData(rawDataObj, callback);
+
+      Papa.parse("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/fechas.md", {
+        download: true,
+        delimiter: "|",
+        skipEmptyLines: true,
+        complete: function(datesResults) {
+
+          rawDataObj.spain_dates = datesResults.data;
+          transformData(rawDataObj, callback);
+        }
+      });
     },
     error: function(err, file, inputElem, reason) {
       console.log(err);
@@ -61,14 +72,14 @@ export const requestData = (callback) => {
 
 const transformData = (rawDataObj, callback) => {
 
-  if(rawDataObj.spain && rawDataObj.global_deaths && rawDataObj.spain.length > 1 && rawDataObj.global_deaths.length > 1  ) {
+  if(rawDataObj.spain && rawDataObj.global_deaths && rawDataObj.spain.length > 1 && rawDataObj.global_deaths.length > 1 && rawDataObj.spain_dates  ) {
 
     rawDataObj = handleRawData(rawDataObj);
     const chartData = {
       spain: false,
       global_deaths: false,
     }
-    const spainResults = transformSpainResults(rawDataObj.spain);
+    const spainResults = transformSpainResults(rawDataObj.spain, rawDataObj.spain_dates);
     chartData.spain = {
       spainSeries: spainResults.series,
       spainSeriesNew: spainResults.seriesNew,
@@ -77,7 +88,7 @@ const transformData = (rawDataObj, callback) => {
 
     chartData.global_deaths = transformGlobalResults(rawDataObj.global_deaths);
 
-    callback(chartData);
+    callback(chartData, countriesData);
   }
 }
 
@@ -108,11 +119,12 @@ const handleRawData = (rawDataObj) => {
 };
 
 
-const transformSpainResults = results => {
+const transformSpainResults = (results, dates) => {
 
   const categories = [];
   const series = [];
   let seriesNew = [];
+
   results.forEach((line, index) => {
     if(index === 0) {
       series.push(
@@ -179,6 +191,16 @@ const transformSpainResults = results => {
   spainData.cases =     { ...spainData.cases,      ...getScores(spainData.cases)};
   spainData.recovered = { ...spainData.recovered,  ...getScores(spainData.recovered)};
   spainData.deaths =    { ...spainData.deaths,     ...getScores(spainData.deaths)};
+
+  let updateDate = false;
+  for (let index = 0; index < dates.length; index++) {
+    const line = dates[index];
+    if(line[2] && line[2].indexOf("nacional_covid19.csv") >= 0) {
+      updateDate = new Date(line[1].trim()).getTime();
+      break;
+    }
+  }
+  spainData.updateDate = updateDate;
 
   console.log(spainData);
 
