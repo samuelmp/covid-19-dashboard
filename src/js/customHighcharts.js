@@ -38,6 +38,9 @@ import Highcharts from 'highcharts';
         "fontWeight": "normal",
         "color": "#A2A39C"
       },
+      itemHoverStyle: {
+        color: '#F92672'
+      },
       x: 0,
       y: 22
     },

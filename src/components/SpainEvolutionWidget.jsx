@@ -6,12 +6,21 @@ import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
 import { es as esLocale } from 'date-fns/locale/';
 import { format } from 'date-fns';
+import { Switch, FormControlLabel } from '@material-ui/core';
+import cloneDeep from 'lodash.clonedeep';
 var _styles = require("@material-ui/core/styles");
 
 const useStyles = makeStyles(theme => ({
   root: {
-    height: "400px"
+    height: "400px",
+    position: "relative"
   },
+  switch: {
+    position: "absolute",
+    top: theme.spacing(1.5),
+    left: theme.spacing(0),
+    zIndex: 1
+  }
 }));
 
 const getYAxis = (isResponsive = false) => {
@@ -115,57 +124,89 @@ const getHighchartsOptions = () => {
   };
 };
 
-const buildSeriesData = data => {
+const buildSeriesData = (data, isAvgData) => {
 
   const series = [];
+  const serieType = isAvgData ? "abs_avg" : "abs";
 
   series.push({
     name: "Casos",
-    data: data.cases.abs
+    data: cloneDeep(data.cases[serieType]),
+    lineColor: _styles.fade(Highcharts.getOptions().colors[1], .8),
+    color: _styles.fade(Highcharts.getOptions().colors[1], .8),
+    dashStyle: isAvgData ? "LongDash" : "Solid"
   });
 
   series.push({
     name: "Altas",
-    data: data.recovered.abs
+    data: cloneDeep(data.recovered[serieType]),
+    lineColor: _styles.fade(Highcharts.getOptions().colors[2], .8),
+    color: _styles.fade(Highcharts.getOptions().colors[2], .8),
+    dashStyle: isAvgData ? "LongDash" : "Solid"
   });
 
   series.push({
     name: "Fallecidos",
-    data: data.deaths.abs,
-    yAxis: 1
+    data: cloneDeep(data.deaths[serieType]),
+    yAxis: 1,
+    lineColor: _styles.fade(Highcharts.getOptions().colors[4], .8),
+    color: _styles.fade(Highcharts.getOptions().colors[4], .8),
+    dashStyle: isAvgData ? "LongDash" : "Solid"
   });
-
   return series;
 };
 
-const SpainEvolutionWidget = ({ series, categories, data }) => {
+const getChartTitle = isAvgData => `DaTos diarios${isAvgData ? " (media de 7 días)" : ""}`;
+
+let internalChart;
+let chartSeriesData;
+const handleChange = (event) => {
+  localStorage.setItem('spainEvolution.isAvgData', event.target.checked);
+  internalChart && internalChart.update({
+    series: buildSeriesData(chartSeriesData, event.target.checked),
+    title:{text: getChartTitle(event.target.checked)}
+  }, true, true);
+}
+
+const afterChartCreated = (chart) => {
+  internalChart = chart;
+}
+
+const SpainEvolutionWidget = ({ data }) => {
   const classes = useStyles();
-  const seriesColors = [
-    Highcharts.getOptions().colors[1],
-    Highcharts.getOptions().colors[2],
-    Highcharts.getOptions().colors[4]
-  ];
   const options = getHighchartsOptions();
 
+  const isAvgData = "true" === localStorage.getItem('spainEvolution.isAvgData') || false;
+  console.log(isAvgData);
+  chartSeriesData = data;
   //options.series = series || [];
-  options.series = (data && buildSeriesData(data)) || [];
-
-  options.series.forEach( (serie, index, series) => {
-    series[index] = { ...serie,
-      fillColor: {
-        stops: [[0, _styles.fade(seriesColors[index], 1)], [1, _styles.fade(seriesColors[index], .1)]]
-      },
-      lineColor: _styles.fade(seriesColors[index], .8),
-      color: _styles.fade(seriesColors[index], .8)
-    };
-  });
+  options.series = (data && buildSeriesData(data, isAvgData)) || [];
   //options.xAxis.categories = categories || [];
-  options.title.text = "DaTos diarios";
+  options.title.text = getChartTitle(isAvgData);
   return (<>
     <WidgetContainer className={classes.root}>
-      <HighchartsReact highcharts={Highcharts} options={options} containerProps = {{ style: {width: "100%"} }} />
+      <TypeSwitch onChange={handleChange} initialChecked={isAvgData} />
+      <HighchartsReact highcharts={Highcharts} options={options} callback={ afterChartCreated } containerProps = {{ style: {width: "100%"} }} />
     </WidgetContainer>
   </>);
 };
 
 export default SpainEvolutionWidget;
+
+
+const TypeSwitch = ({ onChange, initialChecked }) => {
+
+  const classes = useStyles();
+  const [checked, setChecked] = React.useState(initialChecked);
+  const handleChange = (event) => {
+    setChecked(event.target.checked);
+    onChange && onChange(event);
+  };
+
+  return(
+  <FormControlLabel control={
+    <Switch color="primary" disableRipple size="small" checked={checked} onChange={handleChange} />
+  }
+  className={classes.switch} labelPlacement="start" label="Normalizar" />
+  );
+}
