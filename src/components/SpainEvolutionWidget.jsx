@@ -134,7 +134,7 @@ const buildSeriesData = (data, isAvgData) => {
     data: cloneDeep(data.cases[serieType]),
     lineColor: _styles.fade(Highcharts.getOptions().colors[1], .8),
     color: _styles.fade(Highcharts.getOptions().colors[1], .8),
-    dashStyle: isAvgData ? "LongDash" : "Solid"
+    dashStyle: "Solid"
   });
 
   series.push({
@@ -142,7 +142,7 @@ const buildSeriesData = (data, isAvgData) => {
     data: cloneDeep(data.recovered[serieType]),
     lineColor: _styles.fade(Highcharts.getOptions().colors[2], .8),
     color: _styles.fade(Highcharts.getOptions().colors[2], .8),
-    dashStyle: isAvgData ? "LongDash" : "Solid"
+    dashStyle: "Solid"
   });
 
   series.push({
@@ -151,7 +151,7 @@ const buildSeriesData = (data, isAvgData) => {
     yAxis: 1,
     lineColor: _styles.fade(Highcharts.getOptions().colors[4], .8),
     color: _styles.fade(Highcharts.getOptions().colors[4], .8),
-    dashStyle: isAvgData ? "LongDash" : "Solid"
+    dashStyle: "Solid"
   });
   return series;
 };

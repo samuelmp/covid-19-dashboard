@@ -47,7 +47,7 @@ class Dashboard extends Component {
       });
       console.log(data);
       renderChart(data.global_deaths.cumulativeSeries, "container1", "FallecimienTos acumulados");
-      renderChart(data.global_deaths.incrementSeries, "container2", "Nuevos fallecimienTos")
+      renderChart(data.global_deaths.incrementSeries, "container2", "FallecimienTos diarios")
       renderChart(data.global_deaths.growthSeries, "container3", "Tasa de crecimiento", "%");
 
     });
@@ -162,13 +162,20 @@ const renderChart = (series, container, title, sufix = false) => {
         x: -8,
         align: "right"
     },
+    subtitle: {
+      text: "Media de los últimos 7 días",
+      align: "right",
+      x: -10,
+      y: 24
+    },
     tooltip: {
         valueSuffix: sufix || "",
     },
     yAxis: {
       // type: 'logarithmic',
       title: {
-          text: 'Fallecidos'
+          text: 'Fallecidos',
+          disabled: true
       }
     },
 
