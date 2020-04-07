@@ -90,36 +90,17 @@ const styles = theme => ({
 
     this.myRef = React.createRef();
   }
-  transformDataResults = (serie) => {
-    //const score = serie.data[serie.data.length - 1];
 
-    let score = 0;
-    let scoreIncrement = 0;
-    let scoreTrend = 0;
+  transformDataResults = ({abs_avg: abs}) => {
     let peityList = false;
-    //serie.data.forEach(e => score += e);
 
-    if(serie.data && serie.data.length > 0) {
-      for (let i = 0; i < serie.data.length; i++) {
-        const e = serie.data[i];
-        score += e;
-        if(serie.data.length >= 1 && (serie.data.length - 1) === i) {
-          scoreIncrement = serie.data[i];
-          scoreTrend = scoreIncrement - serie.data[i - 1];
-        }
-      }
-
-
+    if(abs && abs.length > 0) {
       const SLICE_MAX = 20;
-      const sliceCount = serie.data.length >= SLICE_MAX ? SLICE_MAX : serie.data.length;
-      peityList = serie.data.slice(-sliceCount);
+      const sliceCount = abs.length >= SLICE_MAX ? SLICE_MAX : abs.length;
+      peityList = abs.slice(-sliceCount).map(item => item[1]);
     }
-    //const scoreIncrement = score - serie.data[serie.data.length - 2];
-    //const scoreTrend = scoreIncrement > serie.data[serie.data.length - 2] - serie.data[serie.data.length - 3] ? "up" : "down";
+
     this.setState({
-      score: score,
-      scoreIncrement:scoreIncrement,
-      scoreTrend: scoreTrend,
       peityList: peityList
     });
   }
@@ -127,49 +108,57 @@ const styles = theme => ({
 
   componentDidUpdate(prevProps) {
 
-    const {color, serie} = this.props;
+    const {color, data} = this.props;
+
+
     window.$(this.peityEl).peity("line", {
       stroke: _styles.fade(scoreColors[color || "grey"], .175),
       fill: _styles.fade(scoreColors[color || "grey"], .075),
       width: "100%",
       height: "90%",
     });
-    if(!Object.equals(prevProps.serie, serie)) {
-      this.transformDataResults(serie)
+    if(!Object.equals(prevProps.data, data)) {
+      this.transformDataResults(data)
     }
 
   }
 
   render() {
-    const { classes, title, color, trendText = false, reverseTrend = false } = this.props;
-    const { score, scoreIncrement, scoreTrend, peityList } = this.state;
+    const { classes, title, color, trendText = false, reverseTrend = false, data } = this.props;
+    const { peityList } = this.state;
     const scoreColorCode = scoreColors[color || "green"] ;
 
-    // const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green";
-    const trendColor = reverseTrend ? (scoreTrend < 0 ? "red" : "green") : (scoreTrend > 0 ? "red" : "green");
+    if(data) {
+      const {score, scoreInc, scoreTrend } = data;
 
-    const trendColorClass = trendColor === "red" ? classes.trendRed : classes.trendGreen;
-    return (
-      <WidgetContainer className={classes.scoreWidget} >
-        {title && <div className={classes.title}>{title}</div>}
-        {score && <div className={classes.score} style={{color: scoreColorCode}}>
-          {score.toLocaleString("it-IT")}
-        </div>
-        }
+      // const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green";
+      const trendColor = reverseTrend ? (scoreTrend < 0 ? "red" : "green") : (scoreTrend > 0 ? "red" : "green");
 
-        <div className={classes.scoreInc}>
-          {trendText ? <Typography  className={classes.scoreIncText}>{trendText}</Typography> : scoreIncrement}
-          {scoreTrend && !trendText && (
-              (scoreTrend > 0 && <TrendingUpRoundedIcon className={trendColorClass} />) ||
-              (scoreTrend < 0 && <TrendingDownRoundedIcon className={trendColorClass} />) ||
-              ""
-          )}
-          {!trendText && <Typography className={classes.scoreDifference}>{(scoreTrend > 0 ? "+" : "") + scoreTrend}</Typography>}
+      const trendColorClass = trendColor === "red" ? classes.trendRed : classes.trendGreen;
+      return (
+        <WidgetContainer className={classes.scoreWidget} >
+          {title && <div className={classes.title}>{title}</div>}
+          {score && <div className={classes.score} style={{color: scoreColorCode}}>
+            {score.toLocaleString("it-IT")}
+          </div>
+          }
 
-        </div>
-        {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}> {peityList.join(",")}</span>}
-      </WidgetContainer>
-    )
+          <div className={classes.scoreInc}>
+            {trendText ? <Typography  className={classes.scoreIncText}>{trendText}</Typography> : scoreInc}
+            {scoreTrend && !trendText && (
+                (scoreTrend > 0 && <TrendingUpRoundedIcon className={trendColorClass} />) ||
+                (scoreTrend < 0 && <TrendingDownRoundedIcon className={trendColorClass} />) ||
+                ""
+            )}
+            {!trendText && <Typography className={classes.scoreDifference}>{(scoreTrend > 0 ? "+" : "") + scoreTrend}</Typography>}
+
+          </div>
+          {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}> {peityList.join(",")}</span>}
+        </WidgetContainer>
+      );
+    } else {
+      return <WidgetContainer className={classes.scoreWidget} ></WidgetContainer>;
+    }
   }
 }
 

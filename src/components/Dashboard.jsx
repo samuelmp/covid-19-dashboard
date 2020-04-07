@@ -36,7 +36,6 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      spainSeries: [],
       countriesData: {}
     };
   }
@@ -44,12 +43,11 @@ class Dashboard extends Component {
   componentDidMount = () => {
     requestData((data, countriesData) => {
       this.setState({
-        spainSeries: data.spain.spainSeriesNew,
         countriesData: countriesData
       });
-
+      console.log(data);
       renderChart(data.global_deaths.cumulativeSeries, "container1", "FallecimienTos acumulados");
-      renderChart(data.global_deaths.incrementSeries, "container2", "Nuevos fallecimienTos")
+      renderChart(data.global_deaths.incrementSeries, "container2", "FallecimienTos diarios")
       renderChart(data.global_deaths.growthSeries, "container3", "Tasa de crecimiento", "%");
 
     });
@@ -57,7 +55,7 @@ class Dashboard extends Component {
 
   render() {
     const {classes} = this.props;
-    const { spainSeries, countriesData } = this.state;
+    const { countriesData } = this.state;
     const spainData = countriesData["Spain"] || false;
     let updateString = "";
     if(spainData) {
@@ -87,18 +85,18 @@ class Dashboard extends Component {
           <Grid item xs={12} lg={4} style={{paddingRight: "1.5rem"}}>
             <Grid container spacing={3} component={Box} height="calc(100% + 24px)">
               <Grid item xs={12} sm={6} lg={6}>
-                <Score title="PosiTivos" color="blue" serie={spainSeries[0]} />
+                <Score title="PosiTivos" color="blue" data={spainData.cases} />
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
-                <Score title="AlTas" color="green" reverseTrend serie={spainSeries[1]} />
+                <Score title="AlTas" color="green" reverseTrend data={spainData.recovered} />
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
-                <Score title="Fallecidos" color="red" serie={spainSeries[2]} />
+                <Score title="Fallecidos" color="red" data={spainData.deaths} />
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
                 <Score title="Casos esTimados" color="orange"
-                  serie={spainSeries[2] ? {...spainSeries[2], data: spainSeries[2].data.map(el => el * 100)} : undefined}
                   trendText = "* Basado en una tasa de fallecimienTos del 1%"
+                  data={spainData.deaths ? {...spainData.deaths, score: spainData.deaths.score * 100} : undefined}
                 />
               </Grid>
             </Grid>
@@ -164,13 +162,21 @@ const renderChart = (series, container, title, sufix = false) => {
         x: -8,
         align: "right"
     },
+    subtitle: {
+      text: "Media de los últimos 7 días",
+      align: "right",
+      x: -10,
+      y: 24
+    },
     tooltip: {
         valueSuffix: sufix || "",
     },
     yAxis: {
-        title: {
-            text: 'Fallecidos'
-        }
+      // type: 'logarithmic',
+      title: {
+          text: 'Fallecidos',
+          disabled: true
+      }
     },
 
     xAxis: {
