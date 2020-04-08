@@ -84,16 +84,16 @@ class Dashboard extends Component {
         <Grid container component={Box} spacing={3} pt={1} mb={1} >
           <Grid item xs={12} lg={4} style={{paddingRight: "1.5rem"}}>
             <Grid container spacing={3} component={Box} height="calc(100% + 24px)">
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={6} sm={6} lg={6}>
                 <Score title="PosiTivos" color="blue" data={spainData.cases} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={6} sm={6} lg={6}>
                 <Score title="AlTas" color="green" reverseTrend data={spainData.recovered} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={6} sm={6} lg={6}>
                 <Score title="Fallecidos" color="red" data={spainData.deaths} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={6} sm={6} lg={6}>
                 <Score title="Casos esTimados" color="orange"
                   trendText = "* Basado en una tasa de fallecimienTos del 1%"
                   data={spainData.deaths ? {...spainData.deaths, score: spainData.deaths.score * 100} : undefined}
