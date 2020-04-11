@@ -34,6 +34,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peity/3.2.1/jquery.peity.js"></script>
 
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-analytics.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyDAhcSLZ4L46saE0tpOoWvqzvrBNrzhr74",
+        authDomain: "covid-19-evolution-dashboard.firebaseapp.com",
+        databaseURL: "https://covid-19-evolution-dashboard.firebaseio.com",
+        projectId: "covid-19-evolution-dashboard",
+        storageBucket: "covid-19-evolution-dashboard.appspot.com",
+        messagingSenderId: "327565683539",
+        appId: "1:327565683539:web:fd1d3e6d580811f7018fa6",
+        measurementId: "G-2X2D2PKE0L"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
