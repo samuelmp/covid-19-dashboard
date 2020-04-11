@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-
+import Highcharts from 'highcharts';
 import { Typography } from '@material-ui/core';
 import TrendingUpRoundedIcon from '@material-ui/icons/TrendingUpRounded';
 import TrendingDownRoundedIcon from '@material-ui/icons/TrendingDownRounded';
@@ -10,10 +10,10 @@ import WidgetContainer from './WidgetContainer.jsx';
 const _styles = require("@material-ui/core/styles");
 
 const scoreColors = {
-  red:    "rgba(231, 76, 60, .9)",
-  green:  "rgba(166, 226, 46, .9)",
-  blue:   "rgba(102, 207, 239, .9)",
-  orange: "#f39c12",
+  red:    Highcharts.getOptions().colors[2],
+  green:  Highcharts.getOptions().colors[1],
+  blue:   Highcharts.getOptions().colors[0],
+  orange: Highcharts.getOptions().colors[3],
   grey:   "#5e83a8"
 }
 

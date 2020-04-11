@@ -11,11 +11,11 @@ import WidgetContainer from './WidgetContainer.jsx';
 
 import Highcharts from 'highcharts';
 
-import SpainEvolutionWidget from './SpainEvolutionWidget.jsx';
-import SpainEvolutionAcumWidget from './SpainEvolutionAcumWidget.jsx';
+import CountryEvolutionWidget from './CountryEvolutionWidget.jsx';
+import CountryEvolutionAcumWidget from './CountryEvolutionAcumWidget.jsx';
 
 import { es as esLocale } from 'date-fns/locale/';
-import { format } from 'date-fns'
+import { format, isYesterday, isToday } from 'date-fns'
 
 const styles = theme => ({
   root: {
@@ -36,7 +36,8 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      countriesData: {}
+      countriesData: {},
+      selectedCountryId: "Spain"
     };
   }
 
@@ -45,22 +46,23 @@ class Dashboard extends Component {
       this.setState({
         countriesData: countriesData
       });
-      console.log(data);
-      renderChart(data.global_deaths.cumulativeSeries, "container1", "FallecimienTos acumulados");
-      renderChart(data.global_deaths.incrementSeries, "container2", "FallecimienTos diarios")
-      renderChart(data.global_deaths.growthSeries, "container3", "Tasa de crecimiento", "%");
+      console.log(data, countriesData);
+      renderChart(countriesData, "acum_avg", "container1", "FallecimienTos acumulados");
+      renderChart(countriesData, "abs_avg", "container2", "FallecimienTos diarios")
+      renderChart(countriesData, "growth_avg", "container3", "Tasa de crecimiento", "%");
 
     });
   }
 
   render() {
     const {classes} = this.props;
-    const { countriesData } = this.state;
-    const spainData = countriesData["Spain"] || false;
+    const { countriesData, selectedCountryId } = this.state;
+    const countryData = countriesData[selectedCountryId] || false;
     let updateString = "";
-    if(spainData) {
-      const udateDate = spainData.updateDate;
-      updateString = format(udateDate, "EEEE dd MMMM 'a las' H:mm ", {
+    if(countryData) {
+      const udateDate = countryData.updateDate;
+      const dayText = (isToday(udateDate) && "Hoy") || (isYesterday(udateDate) && "Ayer") || format(udateDate, "EEEE", {locale: esLocale});
+      updateString = format(udateDate, `'${dayText}', dd MMMM 'a las' H:mm`, {
         locale: esLocale
       });
     }
@@ -84,31 +86,31 @@ class Dashboard extends Component {
         <Grid container component={Box} spacing={3} pt={1} mb={1} >
           <Grid item xs={12} lg={4} style={{paddingRight: "1.5rem"}}>
             <Grid container spacing={3} component={Box} height="calc(100% + 24px)">
-              <Grid item xs={12} sm={6} lg={6}>
-                <Score title="PosiTivos" color="blue" data={spainData.cases} />
+              <Grid item xs={6} sm={6} lg={6}>
+                <Score title="PosiTivos" color="blue" data={countryData.confirmed} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
-                <Score title="AlTas" color="green" reverseTrend data={spainData.recovered} />
+              <Grid item xs={6} sm={6} lg={6}>
+                <Score title="AlTas" color="green" reverseTrend data={countryData.recovered} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
-                <Score title="Fallecidos" color="red" data={spainData.deaths} />
+              <Grid item xs={6} sm={6} lg={6}>
+                <Score title="Fallecidos" color="red" data={countryData.deaths} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
+              <Grid item xs={6} sm={6} lg={6}>
                 <Score title="Casos esTimados" color="orange"
                   trendText = "* Basado en una tasa de fallecimienTos del 1%"
-                  data={spainData.deaths ? {...spainData.deaths, score: spainData.deaths.score * 100} : undefined}
+                  data={countryData.deaths ? {...countryData.deaths, score: countryData.deaths.score * 100} : undefined}
                 />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} md={6} lg={4} component={Box} pr={0}>
             <Grid container spacing={0} component={Box} pr={0}>
-              <SpainEvolutionWidget data={spainData} />
+              <CountryEvolutionWidget data={countryData} countryId={selectedCountryId} />
             </Grid>
           </Grid>
           <Grid item xs={12} md={6} lg={4} component={Box} pr={0}>
             <Grid container spacing={0} component={Box} pr={0}>
-              <SpainEvolutionAcumWidget data={spainData} />
+              <CountryEvolutionAcumWidget data={countryData} countryId={selectedCountryId} />
             </Grid>
           </Grid>
         </Grid>
@@ -148,7 +150,17 @@ setTimeout(function(){
   window.location = ''
 }, 5 * 60 * 1000);
 
-const renderChart = (series, container, title, sufix = false) => {
+const renderChart = (countryData, type, container, title, sufix = false) => {
+  const series = [];
+
+  for (const countryId in countryData) {
+    console.log(countryId, countryData);
+    const isSerieVisible = countryId !== "China";
+    const beginSeries = countryData[countryId].beginIndex;
+    const serie = {name: countryId, data: countryData[countryId].deaths[type].slice(beginSeries).map(item => item[1]), visible: isSerieVisible};
+    series.push(serie);
+  }
+
 
   Highcharts.chart(container, {
     chart: {
@@ -183,6 +195,10 @@ const renderChart = (series, container, title, sufix = false) => {
       allowDecimals: false,
       tickmarkPlacement: 'on',
     },
+
+    // caption: {
+    //   text: 'An advanced demo showing a combination of various Highcharts features, including flags and plot bands. The chart shows how Highcharts and Highsoft has evolved over time, with number of employees, revenue, search popularity, office locations, and various events of interest.'
+    // },
 
     series: series,
 

@@ -49,7 +49,7 @@ const getYAxis = (isResponsive = false) => {
 
 };
 
-const getHighchartsOptions = () => {
+const getHighchartsOptions = (countryId) => {
   return {
     chart: {
       type: 'spline',
@@ -72,8 +72,8 @@ const getHighchartsOptions = () => {
           });
         },
       },
-      plotLines: [{
-        color: 'rgba(255,255,255,.3)',
+      plotLines: countryId === "Spain" ? [{
+        color: 'rgba(255,255,255,.66)',
         width: 2,
         value: 1584140400000,
         dashStyle: "Dash",
@@ -81,28 +81,24 @@ const getHighchartsOptions = () => {
           text: 'Estado Alarma',
           verticalAlign: 'Top',
           textAlign: 'left',
-          y: 10,
+          y: 8,
           x: 8,
           style: {
-            color: '#FFFFFF',
+            color: 'rgba(255,255,255,.66)',
           }
         }
-      },{
-        color: 'rgba(255,255,255,.3)',
-        width: 2,
-        value: 1585519200000,
-        dashStyle: "Dash",
+      }] : [],
+      plotBands: countryId === "Spain" ? [{
+        color: 'rgba(255,255,255,.05)',
+        from: 1585519200000,
+        to: 1585519200000 + (1000*60*60*24*12),
         label: {
           text: 'Trabajos Esenciales',
-          verticalAlign: 'Top',
-          textAlign: 'left',
-          y: 100,
-          x: 8,
           style: {
-            color: '#FFFFFF',
+            color: 'rgba(255,255,255,.66)',
           }
         }
-      }]
+      }] : []
     },
     yAxis: getYAxis() ,
 
@@ -128,29 +124,30 @@ const buildSeriesData = (data, isAvgData) => {
 
   const series = [];
   const serieType = isAvgData ? "abs_avg" : "abs";
-
+  const beginSeries = data.beginIndex;
+  console.log("beginIndex", beginSeries);
   series.push({
     name: "Casos",
-    data: cloneDeep(data.cases[serieType]),
+    data: cloneDeep(data.confirmed[serieType]).slice(beginSeries),
+    lineColor: _styles.fade(Highcharts.getOptions().colors[0], .8),
+    color: _styles.fade(Highcharts.getOptions().colors[0], .8),
+    dashStyle: "Solid"
+  });
+
+  series.push({
+    name: "Altas",
+    data: cloneDeep(data.recovered[serieType]).slice(beginSeries),
     lineColor: _styles.fade(Highcharts.getOptions().colors[1], .8),
     color: _styles.fade(Highcharts.getOptions().colors[1], .8),
     dashStyle: "Solid"
   });
 
   series.push({
-    name: "Altas",
-    data: cloneDeep(data.recovered[serieType]),
+    name: "Fallecidos",
+    data: cloneDeep(data.deaths[serieType]).slice(beginSeries),
+    yAxis: 1,
     lineColor: _styles.fade(Highcharts.getOptions().colors[2], .8),
     color: _styles.fade(Highcharts.getOptions().colors[2], .8),
-    dashStyle: "Solid"
-  });
-
-  series.push({
-    name: "Fallecidos",
-    data: cloneDeep(data.deaths[serieType]),
-    yAxis: 1,
-    lineColor: _styles.fade(Highcharts.getOptions().colors[4], .8),
-    color: _styles.fade(Highcharts.getOptions().colors[4], .8),
     dashStyle: "Solid"
   });
   return series;
@@ -161,7 +158,7 @@ const getChartTitle = isAvgData => `DaTos diarios${isAvgData ? " (media de 7 dí
 let internalChart;
 let chartSeriesData;
 const handleChange = (event) => {
-  localStorage.setItem('spainEvolution.isAvgData', event.target.checked);
+  localStorage.setItem('countryEvolution.isAvgData', event.target.checked);
   internalChart && internalChart.update({
     series: buildSeriesData(chartSeriesData, event.target.checked),
     title:{text: getChartTitle(event.target.checked)}
@@ -172,11 +169,11 @@ const afterChartCreated = (chart) => {
   internalChart = chart;
 }
 
-const SpainEvolutionWidget = ({ data }) => {
+const CountryEvolutionWidget = ({ data, countryId }) => {
   const classes = useStyles();
-  const options = getHighchartsOptions();
+  const options = getHighchartsOptions(countryId);
 
-  const isAvgData = "true" === localStorage.getItem('spainEvolution.isAvgData') || false;
+  const isAvgData = "true" === localStorage.getItem('countryEvolution.isAvgData') || false;
   console.log(isAvgData);
   chartSeriesData = data;
   //options.series = series || [];
@@ -191,7 +188,7 @@ const SpainEvolutionWidget = ({ data }) => {
   </>);
 };
 
-export default SpainEvolutionWidget;
+export default CountryEvolutionWidget;
 
 
 const TypeSwitch = ({ onChange, initialChecked }) => {
