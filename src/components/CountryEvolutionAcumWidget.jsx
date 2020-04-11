@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const getHighchartsOptions = () => {
+const getHighchartsOptions = (countryId) => {
 
 
   return {
@@ -41,7 +41,7 @@ const getHighchartsOptions = () => {
         },
       },
 
-      plotLines: [{
+      plotLines: countryId === "Spain" ? [{
         color: 'rgba(255,255,255,.3)',
         width: 2,
         value: 1584140400000,
@@ -71,12 +71,15 @@ const getHighchartsOptions = () => {
             color: '#FFFFFF',
           }
         }
-      }]
+      }] : []
     },
     plotOptions: {
       area: {
         stacking: undefined,
       },
+      series: {
+        lineWidth: 4
+      }
     },
     yAxis: {
       title: {
@@ -103,34 +106,34 @@ const getHighchartsOptions = () => {
 const buildSeriesData = data => {
 
   const series = [];
-
+  const beginSeries = data.beginIndex;
   series.push({
     name: "Casos",
-    data: data.cases.acum
+    data: data.confirmed.acum.slice(beginSeries)
   });
 
   series.push({
     name: "Altas",
-    data: data.recovered.acum
+    data: data.recovered.acum.slice(beginSeries)
   });
 
   series.push({
     name: "Fallecidos",
-    data: data.deaths.acum
+    data: data.deaths.acum.slice(beginSeries)
   });
 
   return series;
 };
 
 
-const SpainEvolutionAcumWidget = ({ data }) => {
+const CountryEvolutionAcumWidget = ({ data, countryId }) => {
   const classes = useStyles();
   const seriesColors = [
+    Highcharts.getOptions().colors[0],
     Highcharts.getOptions().colors[1],
-    Highcharts.getOptions().colors[2],
-    Highcharts.getOptions().colors[4]
+    Highcharts.getOptions().colors[2]
   ];
-  const options = getHighchartsOptions();
+  const options = getHighchartsOptions(countryId);
 
   options.series = (data && buildSeriesData(data)) || [];
 
@@ -151,4 +154,4 @@ const SpainEvolutionAcumWidget = ({ data }) => {
   </>);
 };
 
-export default SpainEvolutionAcumWidget;
+export default CountryEvolutionAcumWidget;

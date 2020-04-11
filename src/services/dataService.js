@@ -16,10 +16,12 @@ const typeTemplate = {
 
 const countryTemplate = {
   color: "#FFF",
-  cases: cloneDeep(typeTemplate),
+  confirmed: cloneDeep(typeTemplate),
   recovered: cloneDeep(typeTemplate),
   deaths: cloneDeep(typeTemplate),
   updateDate: 0,
+  beginDatetime: 0,
+  beginIndex: 0
 }
 
 
@@ -55,25 +57,62 @@ export const requestData = (callback) => {
   });
   // Global parsin data
   Papa.parse(
-    //"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+    //https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv
+    //https://api.github.com/repos/CSSEGISandData/COVID-19/commits?path=csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv
     "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
   , {
     download: true,
     complete: function(results) {
       console.log("Parsing Global results...");
       rawDataObj.global_deaths = results.data;
-      transformData(rawDataObj, callback);
+
+      Papa.parse(
+        "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+      , {
+        download: true,
+        complete: function(results) {
+          console.log("Parsing Global results...");
+          rawDataObj.global_confirmed = results.data;
+
+          Papa.parse(
+            "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
+          , {
+            download: true,
+            complete: function(results) {
+              console.log("Parsing Global results...");
+              rawDataObj.global_recovered = results.data;
+              transformData(rawDataObj, callback);
+            },
+            error: function(err, file, inputElem, reason) {
+              console.log(err);
+            },
+          });
+        },
+        error: function(err, file, inputElem, reason) {
+          console.log(err);
+        },
+      });
+
     },
     error: function(err, file, inputElem, reason) {
       console.log(err);
     },
   });
 
+
 };
 
 const transformData = (rawDataObj, callback) => {
 
-  if(rawDataObj.spain && rawDataObj.global_deaths && rawDataObj.spain.length > 1 && rawDataObj.global_deaths.length > 1 && rawDataObj.spain_dates  ) {
+  if( rawDataObj.spain &&
+      rawDataObj.global_deaths &&
+      rawDataObj.global_confirmed &&
+      rawDataObj.global_recovered &&
+      rawDataObj.spain_dates &&
+      rawDataObj.spain.length > 1 &&
+      rawDataObj.global_deaths.length > 1 &&
+      rawDataObj.global_confirmed.length > 1 &&
+      rawDataObj.global_recovered.length > 1 ) {
 
     rawDataObj = handleRawData(rawDataObj);
     const chartData = {
@@ -82,7 +121,7 @@ const transformData = (rawDataObj, callback) => {
     transformSpainResults(rawDataObj.spain, rawDataObj.spain_dates);
 
     chartData.global_deaths = transformGlobalResults(rawDataObj.global_deaths);
-    //chartData.global_deaths = transformGlobalResults_2(rawDataObj.global_deaths);
+    transformGlobalResults_2(rawDataObj.global_deaths, rawDataObj.global_confirmed, rawDataObj.global_recovered);
 
     callback(chartData, countriesData);
   }
@@ -93,16 +132,15 @@ const handleRawData = (rawDataObj) => {
   console.log("rawDataObj-global_deaths ==========>", rawDataObj.global_deaths);
 
   const firstSpainDateData = format(new Date(parse(rawDataObj.spain[1][0], "yyyy-MM-dd", new Date())), "M/dd/yy");
+  const lastSpainDateData = format(new Date(parse(rawDataObj.spain[rawDataObj.spain.length-1][0], "yyyy-MM-dd", new Date())), "M/dd/yy");
 
   const global_headers = rawDataObj.global_deaths[0];
 
   const firstDataIndex = global_headers.indexOf(firstSpainDateData);
-
+  // Fix for death Spain Data
   rawDataObj.global_deaths.forEach(item => {
-
     if(item[0] === "" && item[1] === "Spain") {
       for (let i = 1; i < rawDataObj.spain.length; i++) {
-
         const element = rawDataObj.spain[i];
         if(element && element.length > 0 && element[0]) {
           const globalDateIndex = firstDataIndex  + i - 1;
@@ -111,6 +149,35 @@ const handleRawData = (rawDataObj) => {
       }
     }
   });
+  // Fix for confirmed Spain Data
+  rawDataObj.global_confirmed.forEach(item => {
+    if(item[0] === "" && item[1] === "Spain") {
+      for (let i = 1; i < rawDataObj.spain.length; i++) {
+        const element = rawDataObj.spain[i];
+        if(element && element.length > 0 && element[0]) {
+          const globalDateIndex = firstDataIndex  + i - 1;
+          item[globalDateIndex] = element[1] || "0";
+        }
+      }
+    }
+  });
+  // Fix for recovered Spain Data
+  rawDataObj.global_recovered.forEach(item => {
+    if(item[0] === "" && item[1] === "Spain") {
+      for (let i = 1; i < rawDataObj.spain.length; i++) {
+        const element = rawDataObj.spain[i];
+        if(element && element.length > 0 && element[0]) {
+          const globalDateIndex = firstDataIndex  + i - 1;
+          item[globalDateIndex] = element[2] || "0";
+        }
+      }
+    }
+  });
+
+  rawDataObj.global_deaths[0].slice(-1)!==lastSpainDateData && rawDataObj.global_deaths[0].push(lastSpainDateData);
+  rawDataObj.global_confirmed[0].slice(-1)!==lastSpainDateData && rawDataObj.global_confirmed[0].push(lastSpainDateData);
+  rawDataObj.global_recovered[0].slice(-1)!==lastSpainDateData && rawDataObj.global_recovered[0].push(lastSpainDateData);
+
   return rawDataObj;
 };
 
@@ -119,39 +186,39 @@ const transformSpainResults = (results, dates) => {
 
   const spainData = addNewCountryData("Spain");
 
-  results.forEach((line, index) => {
-    if(index > 0) {
-      const timestamp = getTime(parse(line[0], "yyyy-MM-dd", new Date()));
-      // Casos
-      const casesAcum = (line[1] && parseInt(line[1])) || 0;
-      const lastCasesAcum = (index > 0 && parseInt(results[index-1][1])) || 0;
-      const casesAbs = (casesAcum && (casesAcum - lastCasesAcum) ) || 0;
-      spainData.cases.acum.push([timestamp, casesAcum]);
-      spainData.cases.abs.push([timestamp, casesAbs]);
+  // results.forEach((line, index) => {
+  //   if(index > 0) {
+  //     const timestamp = getTime(parse(line[0], "yyyy-MM-dd", new Date()));
+  //     // Casos
+  //     const confirmedAcum = (line[1] && parseInt(line[1])) || 0;
+  //     const lastConfirmedAcum = (index > 0 && parseInt(results[index-1][1])) || 0;
+  //     const confirmedAbs = (confirmedAcum && (confirmedAcum - lastConfirmedAcum) ) || 0;
+  //     spainData.confirmed.acum.push([timestamp, confirmedAcum]);
+  //     spainData.confirmed.abs.push([timestamp, confirmedAbs]);
 
-      // Recuperados
-      const recoveredAcum = (line[2] && parseInt(line[2])) || 0;
-      const lastRecoveredAcum = (index > 0 && parseInt(results[index-1][2])) || 0;
-      const recoveredAbs = (recoveredAcum && (recoveredAcum - lastRecoveredAcum) ) || 0;
-      spainData.recovered.acum.push([timestamp, recoveredAcum]);
-      spainData.recovered.abs.push([timestamp, recoveredAbs]);
+  //     // Recuperados
+  //     const recoveredAcum = (line[2] && parseInt(line[2])) || 0;
+  //     const lastRecoveredAcum = (index > 0 && parseInt(results[index-1][2])) || 0;
+  //     const recoveredAbs = (recoveredAcum && (recoveredAcum - lastRecoveredAcum) ) || 0;
+  //     spainData.recovered.acum.push([timestamp, recoveredAcum]);
+  //     spainData.recovered.abs.push([timestamp, recoveredAbs]);
 
-      // Fallecidos
-      const deathsAcum = (line[3] && parseInt(line[3])) || 0;
-      const lastDeathsAcum = (index > 0 && parseInt(results[index-1][3])) || 0;
-      const deathsAbs = (deathsAcum && (deathsAcum - lastDeathsAcum) ) || 0;
-      spainData.deaths.acum.push([timestamp, deathsAcum]);
-      spainData.deaths.abs.push([timestamp, deathsAbs]);
+  //     // Fallecidos
+  //     const deathsAcum = (line[3] && parseInt(line[3])) || 0;
+  //     const lastDeathsAcum = (index > 0 && parseInt(results[index-1][3])) || 0;
+  //     const deathsAbs = (deathsAcum && (deathsAcum - lastDeathsAcum) ) || 0;
+  //     spainData.deaths.acum.push([timestamp, deathsAcum]);
+  //     spainData.deaths.abs.push([timestamp, deathsAbs]);
 
-      spainData.cases.abs_avg.push([timestamp, getAverageData(spainData.cases.abs, index)]);
-      spainData.recovered.abs_avg.push([timestamp, getAverageData(spainData.recovered.abs, index)]);
-      spainData.deaths.abs_avg.push([timestamp, getAverageData(spainData.deaths.abs, index)]);
-    }
-  });
+  //     spainData.confirmed.abs_avg.push([timestamp, getAverageData(spainData.confirmed.abs, index)]);
+  //     spainData.recovered.abs_avg.push([timestamp, getAverageData(spainData.recovered.abs, index)]);
+  //     spainData.deaths.abs_avg.push([timestamp, getAverageData(spainData.deaths.abs, index)]);
+  //   }
+  // });
 
-  spainData.cases =     { ...spainData.cases,      ...getScores(spainData.cases)};
-  spainData.recovered = { ...spainData.recovered,  ...getScores(spainData.recovered)};
-  spainData.deaths =    { ...spainData.deaths,     ...getScores(spainData.deaths)};
+  // spainData.confirmed = { ...spainData.confirmed,  ...getScores(spainData.confirmed)};
+  // spainData.recovered = { ...spainData.recovered,  ...getScores(spainData.recovered)};
+  // spainData.deaths    = { ...spainData.deaths,     ...getScores(spainData.deaths)};
 
   let updateDate = false;
   for (let index = 0; index < dates.length; index++) {
@@ -165,6 +232,29 @@ const transformSpainResults = (results, dates) => {
 
 };
 
+/**
+ * Adds new country object to the global list of objects
+ * @param {*} countryId the key for the country
+ */
+const addNewCountryData = (countryId) => {
+  if(!countriesData[countryId]) {
+    countriesData[countryId] = cloneDeep(countryTemplate);
+  }
+  return getCountryData(countryId);
+};
+
+/**
+ * Returns the object related with the country id parameter
+ * @param {*} countryId
+ */
+const getCountryData = (countryId) => {
+  return countriesData[countryId];
+};
+
+/**
+ * Resolve and returns the scores for de data object parameter
+ * @param {*} dataObj
+ */
 const getScores = (dataObj) => {
   const score = dataObj.acum.slice(-1)[0][1];
   const scoreInc = dataObj.abs.slice(-1)[0][1];
@@ -172,6 +262,11 @@ const getScores = (dataObj) => {
   return {score, scoreInc, scoreTrend};
 }
 
+/**
+ * Resolve the average value for the array for seven positions of the array parameter
+ * @param {*} serie
+ * @param {*} index
+ */
 const getAverageData = (serie, index) => {
   const l = serie.length;
   const data4Avg = serie.slice(l >= 7 ? index-7 : 0, index).map(item => item[1]);
@@ -179,6 +274,10 @@ const getAverageData = (serie, index) => {
   return avg >= 0 ? avg : 0;
 }
 
+/**
+ * Returns the average value for an array parameter
+ * @param {*} array
+ */
 const arrayAverage = (array) => {
   var sum = 0;
   for( let i = 0; i < array.length; i++ ) {
@@ -187,7 +286,51 @@ const arrayAverage = (array) => {
   return Math.round((array.length > 0 && sum/array.length) || 0);
 }
 
-const transformGlobalResults_2 = (results) => {
+
+const transformGlobalResults_2 = (global_deaths, global_confirmed, global_recovered) => {
+
+  resolveGlobalData(global_deaths, "deaths");
+  resolveGlobalData(global_confirmed, "confirmed");
+  resolveGlobalData(global_recovered, "recovered");
+};
+
+const resolveGlobalData = (globalData, type) => {
+
+  const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
+  const headers = globalData[0];
+
+  globalData.forEach((line, index) => {
+
+    if((line[0] === "" && countries.indexOf(line[1]) >= 0) ||
+       (countries.indexOf(line[0]) >= 0 )
+    ) {
+
+      const countryData = addNewCountryData(line[1]);
+
+      for(let index = 5; index < line.length; index++) {
+        const timestamp = getTime(parse(headers[index], "M/dd/yy", new Date()));
+        const data = line[index];
+
+        const acumData = (data && parseInt(data)) || 0;
+        const lastAcumData = (index > 5 && parseInt(line[index-1])) || 0;
+        const absData = (acumData && (acumData - lastAcumData) ) || 0;
+        countryData[type].acum.push([timestamp, acumData]);
+        countryData[type].abs.push([timestamp, absData]);
+        countryData[type].abs_avg.push([timestamp, getAverageData(countryData[type].abs, countryData[type].abs.length-1)]);
+
+
+        if(!countryData.beginDatetime && type === "confirmed" && acumData >= 20) {
+          countryData.beginDatetime = timestamp;
+          countryData.beginIndex = countryData[type].acum.length-1;
+        }
+      }
+      countryData[type] = { ...countryData[type],  ...getScores(countryData[type])};
+    }
+  });
+
+};
+
+
 
   // const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
   // const cumulativeSeries = [];
@@ -233,8 +376,6 @@ const transformGlobalResults_2 = (results) => {
   //     growthData.length > 0 && growthSeries.push({name: serieName, data: growthData, visible: isSerieVisible});
 
   // });
-
-}
 
 const transformGlobalResults = results => {
   const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
@@ -293,13 +434,4 @@ const transformGlobalResults = results => {
 }
 
 
-const addNewCountryData = (countryId) => {
-  if(!countriesData[countryId]) {
-    countriesData[countryId] = cloneDeep(countryTemplate);
-  }
-  return getCountryData(countryId);
-};
 
-const getCountryData = (countryId) => {
-  return countriesData[countryId];
-};
