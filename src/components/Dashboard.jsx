@@ -47,9 +47,9 @@ class Dashboard extends Component {
         countriesData: countriesData
       });
       console.log(data, countriesData);
-      renderChart(data.global_deaths.cumulativeSeries, "container1", "FallecimienTos acumulados");
-      renderChart(data.global_deaths.incrementSeries, "container2", "FallecimienTos diarios")
-      renderChart(data.global_deaths.growthSeries, "container3", "Tasa de crecimiento", "%");
+      renderChart(countriesData, "acum_avg", "container1", "FallecimienTos acumulados");
+      renderChart(countriesData, "abs_avg", "container2", "FallecimienTos diarios")
+      renderChart(countriesData, "growth_avg", "container3", "Tasa de crecimiento", "%");
 
     });
   }
@@ -150,7 +150,17 @@ setTimeout(function(){
   window.location = ''
 }, 5 * 60 * 1000);
 
-const renderChart = (series, container, title, sufix = false) => {
+const renderChart = (countryData, type, container, title, sufix = false) => {
+  const series = [];
+
+  for (const countryId in countryData) {
+    console.log(countryId, countryData);
+    const isSerieVisible = countryId !== "China";
+    const beginSeries = countryData[countryId].beginIndex;
+    const serie = {name: countryId, data: countryData[countryId].deaths[type].slice(beginSeries).map(item => item[1]), visible: isSerieVisible};
+    series.push(serie);
+  }
+
 
   Highcharts.chart(container, {
     chart: {

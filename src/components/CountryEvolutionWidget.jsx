@@ -73,7 +73,7 @@ const getHighchartsOptions = (countryId) => {
         },
       },
       plotLines: countryId === "Spain" ? [{
-        color: 'rgba(255,255,255,.3)',
+        color: 'rgba(255,255,255,.66)',
         width: 2,
         value: 1584140400000,
         dashStyle: "Dash",
@@ -81,25 +81,21 @@ const getHighchartsOptions = (countryId) => {
           text: 'Estado Alarma',
           verticalAlign: 'Top',
           textAlign: 'left',
-          y: 10,
+          y: 8,
           x: 8,
           style: {
-            color: '#FFFFFF',
+            color: 'rgba(255,255,255,.66)',
           }
         }
-      },{
-        color: 'rgba(255,255,255,.3)',
-        width: 2,
-        value: 1585519200000,
-        dashStyle: "Dash",
+      }] : [],
+      plotBands: countryId === "Spain" ? [{
+        color: 'rgba(255,255,255,.05)',
+        from: 1585519200000,
+        to: 1585519200000 + (1000*60*60*24*12),
         label: {
           text: 'Trabajos Esenciales',
-          verticalAlign: 'Top',
-          textAlign: 'left',
-          y: 100,
-          x: 8,
           style: {
-            color: '#FFFFFF',
+            color: 'rgba(255,255,255,.66)',
           }
         }
       }] : []
@@ -129,9 +125,10 @@ const buildSeriesData = (data, isAvgData) => {
   const series = [];
   const serieType = isAvgData ? "abs_avg" : "abs";
   const beginSeries = data.beginIndex;
+  console.log("beginIndex", beginSeries);
   series.push({
     name: "Casos",
-    data: cloneDeep(data.confirmed[serieType].slice(beginSeries)),
+    data: cloneDeep(data.confirmed[serieType]).slice(beginSeries),
     lineColor: _styles.fade(Highcharts.getOptions().colors[0], .8),
     color: _styles.fade(Highcharts.getOptions().colors[0], .8),
     dashStyle: "Solid"
@@ -139,7 +136,7 @@ const buildSeriesData = (data, isAvgData) => {
 
   series.push({
     name: "Altas",
-    data: cloneDeep(data.recovered[serieType].slice(beginSeries)),
+    data: cloneDeep(data.recovered[serieType]).slice(beginSeries),
     lineColor: _styles.fade(Highcharts.getOptions().colors[1], .8),
     color: _styles.fade(Highcharts.getOptions().colors[1], .8),
     dashStyle: "Solid"
@@ -147,7 +144,7 @@ const buildSeriesData = (data, isAvgData) => {
 
   series.push({
     name: "Fallecidos",
-    data: cloneDeep(data.deaths[serieType].slice(beginSeries)),
+    data: cloneDeep(data.deaths[serieType]).slice(beginSeries),
     yAxis: 1,
     lineColor: _styles.fade(Highcharts.getOptions().colors[2], .8),
     color: _styles.fade(Highcharts.getOptions().colors[2], .8),

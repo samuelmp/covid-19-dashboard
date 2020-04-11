@@ -58,9 +58,14 @@ import Highcharts from 'highcharts';
       crosshair: {
         color: "rgba(204,214,235,0.075)",
         width: 18
+      },
+      labels: {
+        formatter:function() {
+          if(this.value !== 0) {
+              return this.value;
+          }
+        }
       }
-
-
     },
     "yAxis": {
       "gridLineDashStyle": "Dot",
@@ -73,10 +78,13 @@ import Highcharts from 'highcharts';
       labels: {
         align: 'left',
         x: 2,
-        y: -6
+        y: -6,
+        // formatter:function(){
+        //   if(this.value !== 0){
+        //       return this.value;
+        //   }
+        // }
       }
-
-
     },
     plotOptions: {
       area: {

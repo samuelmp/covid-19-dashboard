@@ -7,8 +7,11 @@ const countriesData = {};
 
 const typeTemplate = {
   acum: [],
+  acum_avg: [],
   abs: [],
   abs_avg: [],
+  growth: [],
+  growth_avg: [],
   score: 0,
   scoreInc: 0,
   scoreTrend: 0,
@@ -186,40 +189,6 @@ const transformSpainResults = (results, dates) => {
 
   const spainData = addNewCountryData("Spain");
 
-  // results.forEach((line, index) => {
-  //   if(index > 0) {
-  //     const timestamp = getTime(parse(line[0], "yyyy-MM-dd", new Date()));
-  //     // Casos
-  //     const confirmedAcum = (line[1] && parseInt(line[1])) || 0;
-  //     const lastConfirmedAcum = (index > 0 && parseInt(results[index-1][1])) || 0;
-  //     const confirmedAbs = (confirmedAcum && (confirmedAcum - lastConfirmedAcum) ) || 0;
-  //     spainData.confirmed.acum.push([timestamp, confirmedAcum]);
-  //     spainData.confirmed.abs.push([timestamp, confirmedAbs]);
-
-  //     // Recuperados
-  //     const recoveredAcum = (line[2] && parseInt(line[2])) || 0;
-  //     const lastRecoveredAcum = (index > 0 && parseInt(results[index-1][2])) || 0;
-  //     const recoveredAbs = (recoveredAcum && (recoveredAcum - lastRecoveredAcum) ) || 0;
-  //     spainData.recovered.acum.push([timestamp, recoveredAcum]);
-  //     spainData.recovered.abs.push([timestamp, recoveredAbs]);
-
-  //     // Fallecidos
-  //     const deathsAcum = (line[3] && parseInt(line[3])) || 0;
-  //     const lastDeathsAcum = (index > 0 && parseInt(results[index-1][3])) || 0;
-  //     const deathsAbs = (deathsAcum && (deathsAcum - lastDeathsAcum) ) || 0;
-  //     spainData.deaths.acum.push([timestamp, deathsAcum]);
-  //     spainData.deaths.abs.push([timestamp, deathsAbs]);
-
-  //     spainData.confirmed.abs_avg.push([timestamp, getAverageData(spainData.confirmed.abs, index)]);
-  //     spainData.recovered.abs_avg.push([timestamp, getAverageData(spainData.recovered.abs, index)]);
-  //     spainData.deaths.abs_avg.push([timestamp, getAverageData(spainData.deaths.abs, index)]);
-  //   }
-  // });
-
-  // spainData.confirmed = { ...spainData.confirmed,  ...getScores(spainData.confirmed)};
-  // spainData.recovered = { ...spainData.recovered,  ...getScores(spainData.recovered)};
-  // spainData.deaths    = { ...spainData.deaths,     ...getScores(spainData.deaths)};
-
   let updateDate = false;
   for (let index = 0; index < dates.length; index++) {
     const line = dates[index];
@@ -315,11 +284,15 @@ const resolveGlobalData = (globalData, type) => {
         const lastAcumData = (index > 5 && parseInt(line[index-1])) || 0;
         const absData = (acumData && (acumData - lastAcumData) ) || 0;
         countryData[type].acum.push([timestamp, acumData]);
+        countryData[type].acum_avg.push([timestamp, getAverageData(countryData[type].acum, countryData[type].acum.length-1)]);
         countryData[type].abs.push([timestamp, absData]);
         countryData[type].abs_avg.push([timestamp, getAverageData(countryData[type].abs, countryData[type].abs.length-1)]);
 
-
-        if(!countryData.beginDatetime && type === "confirmed" && acumData >= 20) {
+        countryData[type].acum.length > 1 && console.log(countryData[type].acum.length, countryData[type].abs[countryData[type].acum.length-1][1] - countryData[type].acum[countryData[type].acum.length-2][1], countryData[type].acum[countryData[type].acum.length-2][1]);
+        countryData[type].growth.push([timestamp, (countryData[type].acum.length > 1 ? (countryData[type].acum[countryData[type].acum.length-1][1] - countryData[type].acum[countryData[type].acum.length-2][1]) / countryData[type].acum[countryData[type].acum.length-2][1] : 0) * 100]);
+        // countryData[type].growth_avg.push([timestamp, countryData[type].abs_avg.length > 1 ? (countryData[type].abs_avg[countryData[type].abs_avg.length-1][1] - countryData[type].abs_avg[countryData[type].abs_avg.length-2][1]) / countryData[type].abs_avg[countryData[type].abs_avg.length-2][1] : 0 ]);
+        countryData[type].growth_avg.push([timestamp, getAverageData(countryData[type].growth, countryData[type].growth.length-1)]);
+        if(!countryData.beginDatetime && type === "confirmed" && acumData >= 500) {
           countryData.beginDatetime = timestamp;
           countryData.beginIndex = countryData[type].acum.length-1;
         }

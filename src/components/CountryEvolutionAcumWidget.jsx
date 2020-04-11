@@ -42,7 +42,7 @@ const getHighchartsOptions = (countryId) => {
       },
 
       plotLines: countryId === "Spain" ? [{
-        color: 'rgba(255,255,255,.3)',
+        color: 'rgba(255,255,255,.66)',
         width: 2,
         value: 1584140400000,
         dashStyle: "Dash",
@@ -53,22 +53,18 @@ const getHighchartsOptions = (countryId) => {
           y: 8,
           x: 8,
           style: {
-            color: '#FFFFFF',
+            color: 'rgba(255,255,255,.66)',
           }
         }
-      },{
-        color: 'rgba(255,255,255,.3)',
-        width: 2,
-        value: 1585519200000,
-        dashStyle: "Dash",
+      }] : [],
+      plotBands: countryId === "Spain" ? [{
+        color: 'rgba(255,255,255,.05)',
+        from: 1585519200000,
+        to: 1585519200000 + (1000*60*60*24*12),
         label: {
           text: 'Trabajos Esenciales',
-          verticalAlign: 'Top',
-          textAlign: 'left',
-          y: 8,
-          x: 8,
           style: {
-            color: '#FFFFFF',
+            color: 'rgba(255,255,255,.66)',
           }
         }
       }] : []
