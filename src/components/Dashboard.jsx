@@ -1,17 +1,16 @@
 import React, {Component} from 'react';
 
-import { Typography, Grid, Box } from '@material-ui/core';
+import { Typography, Grid, Box, TextField } from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import Score from './Score.jsx';
 
 import { requestData } from '../services/dataService';
-import WidgetContainer from './WidgetContainer.jsx';
-
-import Highcharts from 'highcharts';
 
 import CountryEvolutionWidget from './CountryEvolutionWidget.jsx';
+import HighchartsWidget from './HighchartsWidget.jsx';
 import CountryEvolutionAcumWidget from './CountryEvolutionAcumWidget.jsx';
 
 import { es as esLocale } from 'date-fns/locale/';
@@ -28,6 +27,16 @@ const styles = theme => ({
     padding: "1rem",
     marginBottom: 0,
   },
+  countrySelector: {
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: "transparent",
+      backgroundColor: "rgba(255,255,255, .05)"
+    },
+    '& .MuiInputBase-input': {
+      color: "#A2A39C",
+      fontSize: "133%"
+    }
+  }
 });
 
 
@@ -37,7 +46,7 @@ class Dashboard extends Component {
     super(props);
     this.state = {
       countriesData: {},
-      selectedCountryId: "Spain"
+      selectedCountryId: localStorage.getItem(`dashboard.selectedCountryId`) || "Spain"
     };
   }
 
@@ -46,12 +55,14 @@ class Dashboard extends Component {
       this.setState({
         countriesData: countriesData
       });
-      console.log(data, countriesData);
-      renderChart(countriesData, "acum_avg", "container1", "FallecimienTos acumulados");
-      renderChart(countriesData, "abs_avg", "container2", "FallecimienTos diarios")
-      renderChart(countriesData, "growth_avg", "container3", "Tasa de crecimiento", "%");
-
     });
+  }
+
+  handleChangeCountry = (event, value) => {
+    if(value) {
+      localStorage.setItem(`dashboard.selectedCountryId`, value);
+      this.setState({selectedCountryId: value});
+    }
   }
 
   render() {
@@ -77,8 +88,19 @@ class Dashboard extends Component {
               <Grid item><Typography variant="body1" color="primary" >{updateString.toUpperCase()}</Typography></Grid>
             </Grid>
           </Grid>
-          <Grid item xs>
-            <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en España</Typography>
+          <Grid item xs style={{display: "inline-flex", justifyContent: "center", alignItems: "center"}}>
+            <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en </Typography>
+            <Autocomplete
+              id="combo-box-countries"
+              options={Object.keys(countriesData).sort()}
+              value={selectedCountryId}
+              onChange={this.handleChangeCountry}
+              style={{ width: 200 }}
+              className={classes.countrySelector}
+              size="small"
+              disableClearable
+              renderInput={(params) => <TextField {...params} variant="outlined" />}
+            />
           </Grid>
           <Grid item xs={3}></Grid>
         </Grid>
@@ -128,14 +150,14 @@ class Dashboard extends Component {
           {/* <Grid item xs={3}></Grid> */}
         </Grid>
         <Grid container spacing={3} component={Box} pt={1} pr={0} >
-          <Grid item xs={12} md={6} lg={4}>
-            <WidgetContainer id="container1" style={{height: "400px"}} />
+          <Grid item xs={12} md={6} lg={4} style={{marginBottom: 24}}>
+            <HighchartsWidget data={countriesData} type="acum" title="FallecimienTos acumulados" />
           </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <WidgetContainer id="container2" style={{height: "400px"}} />
+          <Grid item xs={12} md={6} lg={4} style={{marginBottom: 24}}>
+            <HighchartsWidget data={countriesData} type="abs" title="FallecimienTos diarios" />
           </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <WidgetContainer id="container3" style={{height: "400px"}} />
+          <Grid item xs={12} md={6} lg={4} style={{marginBottom: 24}}>
+            <HighchartsWidget data={countriesData} type="growth" title="Tasa de crecimiento" sufix="%" />
           </Grid>
         </Grid>
       </Box>
@@ -143,65 +165,6 @@ class Dashboard extends Component {
   }
 }
 
+
+
 export default withStyles(styles, {withTheme: true})(Dashboard);
-
-console.clear();
-setTimeout(function(){
-  window.location = ''
-}, 5 * 60 * 1000);
-
-const renderChart = (countryData, type, container, title, sufix = false) => {
-  const series = [];
-
-  for (const countryId in countryData) {
-    console.log(countryId, countryData);
-    const isSerieVisible = countryId !== "China";
-    const beginSeries = countryData[countryId].beginIndex;
-    const serie = {name: countryId, data: countryData[countryId].deaths[type].slice(beginSeries).map(item => item[1]), visible: isSerieVisible};
-    series.push(serie);
-  }
-
-
-  Highcharts.chart(container, {
-    chart: {
-      type: 'spline',
-      marginTop: 20,
-      marginBottom: 50,
-    },
-    title: {
-        text: title,
-        y: 2,
-        x: -8,
-        align: "right"
-    },
-    subtitle: {
-      text: "Media de los últimos 7 días",
-      align: "right",
-      x: -10,
-      y: 24
-    },
-    tooltip: {
-        valueSuffix: sufix || "",
-    },
-    yAxis: {
-      // type: 'logarithmic',
-      title: {
-          text: 'Fallecidos',
-          disabled: true
-      }
-    },
-
-    xAxis: {
-      allowDecimals: false,
-      tickmarkPlacement: 'on',
-    },
-
-    // caption: {
-    //   text: 'An advanced demo showing a combination of various Highcharts features, including flags and plot bands. The chart shows how Highcharts and Highsoft has evolved over time, with number of employees, revenue, search popularity, office locations, and various events of interest.'
-    // },
-
-    series: series,
-
-  });
-}
-

@@ -110,7 +110,7 @@ const getHighchartsOptions = (countryId) => {
         chartOptions: {
           legend: {
             layout: 'horizontal',
-            align: 'center',
+            align: 'left',
             verticalAlign: 'bottom'
           },
           yAxis: getYAxis(true)
@@ -125,7 +125,6 @@ const buildSeriesData = (data, isAvgData) => {
   const series = [];
   const serieType = isAvgData ? "abs_avg" : "abs";
   const beginSeries = data.beginIndex;
-  console.log("beginIndex", beginSeries);
   series.push({
     name: "Casos",
     data: cloneDeep(data.confirmed[serieType]).slice(beginSeries),
@@ -159,6 +158,7 @@ let internalChart;
 let chartSeriesData;
 const handleChange = (event) => {
   localStorage.setItem('countryEvolution.isAvgData', event.target.checked);
+
   internalChart && internalChart.update({
     series: buildSeriesData(chartSeriesData, event.target.checked),
     title:{text: getChartTitle(event.target.checked)}
@@ -174,7 +174,6 @@ const CountryEvolutionWidget = ({ data, countryId }) => {
   const options = getHighchartsOptions(countryId);
 
   const isAvgData = "true" === localStorage.getItem('countryEvolution.isAvgData') || false;
-  console.log(isAvgData);
   chartSeriesData = data;
   //options.series = series || [];
   options.series = (data && buildSeriesData(data, isAvgData)) || [];

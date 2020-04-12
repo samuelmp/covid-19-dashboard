@@ -90,7 +90,7 @@ const getHighchartsOptions = (countryId) => {
         chartOptions: {
           legend: {
             layout: 'horizontal',
-            align: 'center',
+            align: 'left',
             verticalAlign: 'bottom'
           },
         }
@@ -136,7 +136,7 @@ const CountryEvolutionAcumWidget = ({ data, countryId }) => {
   options.series.forEach( (serie, index, series) => {
     series[index] = { ...serie,
       fillColor: {
-        stops: [[0, _styles.fade(seriesColors[index], 1)], [1, _styles.fade(seriesColors[index], .1)]]
+        stops: [[0, _styles.fade(seriesColors[index], .6)], [1, _styles.fade(seriesColors[index], 0)]]
       },
       lineColor: _styles.fade(seriesColors[index], .8),
       color: _styles.fade(seriesColors[index], .8)

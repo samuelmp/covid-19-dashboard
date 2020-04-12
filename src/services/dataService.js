@@ -36,6 +36,7 @@ export const requestData = (callback) => {
     global_deaths: false
   };
 
+  // Spain parsin data
   Papa.parse("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/nacional_covid19.csv", {
     download: true,
     skipEmptyLines: true,
@@ -58,10 +59,9 @@ export const requestData = (callback) => {
       console.log(err);
     },
   });
+
   // Global parsin data
   Papa.parse(
-    //https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv
-    //https://api.github.com/repos/CSSEGISandData/COVID-19/commits?path=csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv
     "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
   , {
     download: true,
@@ -84,7 +84,17 @@ export const requestData = (callback) => {
             complete: function(results) {
               console.log("Parsing Global results...");
               rawDataObj.global_recovered = results.data;
-              transformData(rawDataObj, callback);
+
+              window.$.get({url: "https://api.github.com/repos/CSSEGISandData/COVID-19/commits?path=csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
+                success: data => {
+                  if(data && data[0] && data[0].commit && data[0].commit.author) {
+                    rawDataObj.global_date = data[0].commit.author.date;
+                  }
+                  transformData(rawDataObj, callback);
+                }
+              });
+              //
+
             },
             error: function(err, file, inputElem, reason) {
               console.log(err);
@@ -122,17 +132,13 @@ const transformData = (rawDataObj, callback) => {
       global_deaths: false,
     }
     transformSpainResults(rawDataObj.spain, rawDataObj.spain_dates);
-
-    chartData.global_deaths = transformGlobalResults(rawDataObj.global_deaths);
-    transformGlobalResults_2(rawDataObj.global_deaths, rawDataObj.global_confirmed, rawDataObj.global_recovered);
+    transformGlobalResults(rawDataObj.global_deaths, rawDataObj.global_confirmed, rawDataObj.global_recovered, rawDataObj.global_date);
 
     callback(chartData, countriesData);
   }
 }
 
 const handleRawData = (rawDataObj) => {
-  console.log("rawDataObj-spain ==========>", rawDataObj.spain);
-  console.log("rawDataObj-global_deaths ==========>", rawDataObj.global_deaths);
 
   const firstSpainDateData = format(new Date(parse(rawDataObj.spain[1][0], "yyyy-MM-dd", new Date())), "M/dd/yy");
   const lastSpainDateData = format(new Date(parse(rawDataObj.spain[rawDataObj.spain.length-1][0], "yyyy-MM-dd", new Date())), "M/dd/yy");
@@ -256,14 +262,14 @@ const arrayAverage = (array) => {
 }
 
 
-const transformGlobalResults_2 = (global_deaths, global_confirmed, global_recovered) => {
+const transformGlobalResults = (global_deaths, global_confirmed, global_recovered, global_date) => {
 
-  resolveGlobalData(global_deaths, "deaths");
-  resolveGlobalData(global_confirmed, "confirmed");
-  resolveGlobalData(global_recovered, "recovered");
+  resolveGlobalData(global_deaths, "deaths", global_date);
+  resolveGlobalData(global_confirmed, "confirmed", global_date);
+  resolveGlobalData(global_recovered, "recovered", global_date);
 };
 
-const resolveGlobalData = (globalData, type) => {
+const resolveGlobalData = (globalData, type, updateDate) => {
 
   const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
   const headers = globalData[0];
@@ -275,6 +281,7 @@ const resolveGlobalData = (globalData, type) => {
     ) {
 
       const countryData = addNewCountryData(line[1]);
+      if(!countryData.updateDate) countryData.updateDate = new Date(updateDate);
 
       for(let index = 5; index < line.length; index++) {
         const timestamp = getTime(parse(headers[index], "M/dd/yy", new Date()));
@@ -288,7 +295,6 @@ const resolveGlobalData = (globalData, type) => {
         countryData[type].abs.push([timestamp, absData]);
         countryData[type].abs_avg.push([timestamp, getAverageData(countryData[type].abs, countryData[type].abs.length-1)]);
 
-        countryData[type].acum.length > 1 && console.log(countryData[type].acum.length, countryData[type].abs[countryData[type].acum.length-1][1] - countryData[type].acum[countryData[type].acum.length-2][1], countryData[type].acum[countryData[type].acum.length-2][1]);
         countryData[type].growth.push([timestamp, (countryData[type].acum.length > 1 ? (countryData[type].acum[countryData[type].acum.length-1][1] - countryData[type].acum[countryData[type].acum.length-2][1]) / countryData[type].acum[countryData[type].acum.length-2][1] : 0) * 100]);
         // countryData[type].growth_avg.push([timestamp, countryData[type].abs_avg.length > 1 ? (countryData[type].abs_avg[countryData[type].abs_avg.length-1][1] - countryData[type].abs_avg[countryData[type].abs_avg.length-2][1]) / countryData[type].abs_avg[countryData[type].abs_avg.length-2][1] : 0 ]);
         countryData[type].growth_avg.push([timestamp, getAverageData(countryData[type].growth, countryData[type].growth.length-1)]);
@@ -302,109 +308,3 @@ const resolveGlobalData = (globalData, type) => {
   });
 
 };
-
-
-
-  // const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
-  // const cumulativeSeries = [];
-  // const incrementSeries = [];
-  // const growthSeries = [];
-
-  // results.forEach((line, index) => {
-  // const header = line[0];
-
-  //   if((line[0] === "" && countries.indexOf(line[1]) >= 0) ||
-  //       (countries.indexOf(line[0]) >= 0 )
-  //   ) {
-  //     const serieName = line[1];
-  //     const cumulativeData = [];
-  //     const incrementData = [];
-  //     const growthData = [];
-  //     let start = false;
-
-  //     const conuntryData = addNewCountryData(serieName);
-
-
-  //     for(let i=4; i<line.length; i++) {
-
-
-  //       const timestamp = getTime(parse(header[i], "M/d/yy", new Date()));
-
-  //       if(!start) {
-  //         start = line[i] >= 50;
-  //       }
-  //       if(line[1] === 'Spain' || line[1] === 'Italy' || line[1] === 'Germany' || line[1] === 'France') {
-  //         // if(i === 54) {
-  //         //   const fix = (parseInt(line[i+1])-parseInt(line[i])) / 2;
-  //         //   line[i] = parseInt(line[i]) + fix;
-  //         // }
-  //         start && growthData.push(Math.round(((parseInt(line[i])-parseInt(line[i-1])) / parseInt(line[i-1])) * 100));
-  //       }
-  //       start && incrementData.push([line[i]-line[i-1]);
-  //       start && cumulativeData.push(line[i]-0);
-  //     }
-  //     const isSerieVisible = serieName !== "China";
-  //     cumulativeData.length > 0 && cumulativeSeries.push({name: serieName, data: cumulativeData, visible: isSerieVisible});
-  //     incrementData.length > 0 && incrementSeries.push({name: serieName, data: incrementData, visible: isSerieVisible});
-  //     growthData.length > 0 && growthSeries.push({name: serieName, data: growthData, visible: isSerieVisible});
-
-  // });
-
-const transformGlobalResults = results => {
-  const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
-  const cumulativeSeries = [];
-  const incrementSeries = [];
-  const growthSeries = [];
-  results.forEach((line, index) => {
-    if((line[0] === "" && countries.indexOf(line[1]) >= 0) ||
-       (countries.indexOf(line[0]) >= 0 )
-    ) {
-      const serieName = line[1];
-      const cumulativeData = [];
-      const incrementData = [];
-      const growthData_tmp = [];
-      const growthData = [];
-      let start = false;
-      let start2 = false;
-
-      for(let i=5; i<line.length; i++) {
-
-
-
-        if(i > 12) {
-          var sum = 0;
-          var sum2 = 0;
-          let values = line.slice(i-7, i);
-          let values2 = line.slice(i-8, i-1);
-          for( let i = 0; i < values.length; i++ ){
-              sum += parseInt( values[i], 10 ); //don't forget to add the base
-              sum2 += parseInt( values2[i], 10 );
-          }
-          var avg = (Math.round(values.length > 0 && sum/values.length) || 0);
-          var avg2 = (Math.round(values.length > 0 && sum2/values.length) || 0);
-          if(!start2) {
-            start2 = avg-avg2 >= 3;
-          }
-          start2 && incrementData.push((avg-avg2 > 0 && avg-avg2) || 0);
-        }
-        if(!start) {
-          start = line[i] >= 20;
-        }
-        start && cumulativeData.push(line[i] - 0 || "0");
-        if(line[1] === 'Spain' || line[1] === 'Italy' || line[1] === 'Germany' || line[1] === 'France' || line[1] === 'US') {
-          start && growthData_tmp.push([0, Math.round(((parseInt(line[i])-parseInt(line[i-1])) / parseInt(line[i-1])) * 100)]);
-          start && growthData.push(getAverageData(growthData_tmp, growthData_tmp.length));
-        }
-      }
-      const isSerieVisible = serieName !== "China";
-      cumulativeData.length > 0 && cumulativeSeries.push({name: serieName, data: cumulativeData, visible: isSerieVisible});
-      incrementData.length > 0 && incrementSeries.push({name: serieName, data: incrementData, visible: isSerieVisible});
-      growthData.length > 0 && growthSeries.push({name: serieName, data: growthData, visible: isSerieVisible});
-    }
-  });
-  return {cumulativeSeries, incrementSeries, growthSeries}
-
-}
-
-
-
