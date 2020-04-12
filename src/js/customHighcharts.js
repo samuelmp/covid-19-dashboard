@@ -34,7 +34,7 @@ import Highcharts from 'highcharts';
       "align": "left"
     },
     "legend": {
-      "align": "center",
+      "align": "left",
       "verticalAlign": "bottom",
       "itemStyle": {
         "fontWeight": "normal",
@@ -42,6 +42,9 @@ import Highcharts from 'highcharts';
       },
       itemHoverStyle: {
         color: '#F92672'
+      },
+      itemHiddenStyle: {
+        color: 'rgba(255,255,255,.3)'
       },
       x: 0,
       y: 22
@@ -125,7 +128,7 @@ import Highcharts from 'highcharts';
         chartOptions: {
           legend: {
             layout: 'horizontal',
-            align: 'center',
+            align: 'left',
             verticalAlign: 'bottom'
           },
           yAxis: {

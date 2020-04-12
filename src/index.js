@@ -35,6 +35,11 @@ const theme = createMuiTheme({
 	},
 });
 
+console.clear();
+setTimeout(function() {
+  window.location = ''
+}, 5 * 60 * 1000);
+
 ReactDOM.render(
   <React.StrictMode>
   	<MuiThemeProvider theme={theme}>
