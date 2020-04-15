@@ -114,11 +114,15 @@ const styles = theme => ({
       width: "100%",
       height: "90%",
     });
+
+    if(!Object.equals(this.props.data, prevProps.data)) {
+      this.transformDataResults(this.props.data);
+    }
   }
 
   componentDidMount() {
     const {data} = this.props;
-    this.transformDataResults(data)
+    this.transformDataResults(data);
   }
 
   render() {
@@ -128,6 +132,8 @@ const styles = theme => ({
 
     if(data) {
       const {score, scoreInc, scoreTrend } = data;
+
+      console.log(score, scoreInc, scoreTrend, trendText);
 
       // const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green";
       const trendColor = reverseTrend ? (scoreTrend < 0 ? "red" : "green") : (scoreTrend > 0 ? "red" : "green");
@@ -142,16 +148,15 @@ const styles = theme => ({
           }
 
           <div className={classes.scoreInc}>
-            {trendText ? <Typography  className={classes.scoreIncText}>{trendText}</Typography> : scoreInc}
-            {scoreTrend && !trendText && (
+            {trendText ? <Typography  className={classes.scoreIncText}>{trendText || ""}</Typography> : (scoreInc || "0")}
+            {scoreTrend && !trendText ? (
                 (scoreTrend > 0 && <TrendingUpRoundedIcon className={trendColorClass} />) ||
                 (scoreTrend < 0 && <TrendingDownRoundedIcon className={trendColorClass} />) ||
                 ""
-            )}
-            {!trendText && <Typography className={classes.scoreDifference}>{(scoreTrend > 0 ? "+" : "") + scoreTrend}</Typography>}
-
+            ) : ""}
+            {!trendText && scoreTrend ? <Typography className={classes.scoreDifference}>{(scoreTrend > 0 ? "+" : "") + (scoreTrend || "")}</Typography> : ""}
           </div>
-          {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}> {peityList.join(",")}</span>}
+          {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}>{peityList.join(",")}</span>}
         </WidgetContainer>
       );
     } else {
