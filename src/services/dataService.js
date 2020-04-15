@@ -91,6 +91,10 @@ export const requestData = (callback) => {
                     rawDataObj.global_date = data[0].commit.author.date;
                   }
                   transformData(rawDataObj, callback);
+                },
+                error: () => {
+                  rawDataObj.global_date = false;
+                  transformData(rawDataObj, callback);
                 }
               });
               //
@@ -122,10 +126,12 @@ const transformData = (rawDataObj, callback) => {
       rawDataObj.global_confirmed &&
       rawDataObj.global_recovered &&
       rawDataObj.spain_dates &&
+      rawDataObj.global_date &&
       rawDataObj.spain.length > 1 &&
       rawDataObj.global_deaths.length > 1 &&
       rawDataObj.global_confirmed.length > 1 &&
-      rawDataObj.global_recovered.length > 1 ) {
+      rawDataObj.global_recovered.length > 1
+  ) {
 
     rawDataObj = handleRawData(rawDataObj);
     const chartData = {
@@ -231,9 +237,12 @@ const getCountryData = (countryId) => {
  * @param {*} dataObj
  */
 const getScores = (dataObj) => {
-  const score = dataObj.acum.slice(-1)[0][1];
-  const scoreInc = dataObj.abs.slice(-1)[0][1];
-  const scoreTrend = scoreInc - dataObj.abs.slice(-2)[0][1];
+  const scoreSlice = dataObj.acum.slice(-1);
+  const score = (scoreSlice.length > 0 && scoreSlice[0][1]) || 0;
+  const scoreIncSlice = dataObj.abs.slice(-1);
+  const scoreInc =(scoreIncSlice.length > 0 && scoreIncSlice[0][1]) || 0;
+  const scoreTrendSlice = dataObj.abs.slice(-2);
+  const scoreTrend = scoreInc - ((scoreTrendSlice.length > 0 && scoreTrendSlice[0][1]) || 0);
   return {score, scoreInc, scoreTrend};
 }
 
@@ -276,12 +285,20 @@ const resolveGlobalData = (globalData, type, updateDate) => {
 
   globalData.forEach((line, index) => {
 
-    if((line[0] === "" && countries.indexOf(line[1]) >= 0) ||
-       (countries.indexOf(line[0]) >= 0 )
-    ) {
+    if(line[0] === "" || countries.indexOf(line[0]) >= 0 ) {
 
       const countryData = addNewCountryData(line[1]);
-      if(!countryData.updateDate) countryData.updateDate = new Date(updateDate);
+      resetArrays(countryData[type]);
+
+
+      if(!countryData.updateDate) {
+        if(updateDate) {
+          countryData.updateDate = new Date(updateDate);
+        } else {
+          countryData.updateDate = new Date(getTime(parse(headers[headers.length-1], "M/dd/yy", new Date())))
+        }
+
+      }
 
       for(let index = 5; index < line.length; index++) {
         const timestamp = getTime(parse(headers[index], "M/dd/yy", new Date()));
@@ -308,3 +325,12 @@ const resolveGlobalData = (globalData, type, updateDate) => {
   });
 
 };
+
+const resetArrays = (data) => {
+  data.acum = [];
+  data.acum_avg = [];
+  data.abs = [];
+  data.abs_avg = [];
+  data.growth = [];
+  data.growth_avg = [];
+}

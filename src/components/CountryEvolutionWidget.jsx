@@ -13,7 +13,8 @@ var _styles = require("@material-ui/core/styles");
 const useStyles = makeStyles(theme => ({
   root: {
     height: "400px",
-    position: "relative"
+    position: "relative",
+    //paddingTop: "1.25rem",
   },
   switch: {
     position: "absolute",
@@ -59,8 +60,12 @@ const getHighchartsOptions = (countryId) => {
     title: {
         text: "",
         y: 2,
-        x: -2,
-        align: "right"
+        align: "center"
+    },
+    subtitle: {
+      text: "",
+      y: 20,
+      align: "center"
     },
 
     xAxis: {
@@ -152,7 +157,7 @@ const buildSeriesData = (data, isAvgData) => {
   return series;
 };
 
-const getChartTitle = isAvgData => `DaTos diarios${isAvgData ? " (media de 7 días)" : ""}`;
+const getChartTitle = isAvgData => `${isAvgData ? "(media de 7 días)" : ""}`;
 
 let internalChart;
 let chartSeriesData;
@@ -161,7 +166,7 @@ const handleChange = (event) => {
 
   internalChart && internalChart.update({
     series: buildSeriesData(chartSeriesData, event.target.checked),
-    title:{text: getChartTitle(event.target.checked)}
+    subtitle:{text: getChartTitle(event.target.checked)}
   }, true, true);
 }
 
@@ -178,7 +183,8 @@ const CountryEvolutionWidget = ({ data, countryId }) => {
   //options.series = series || [];
   options.series = (data && buildSeriesData(data, isAvgData)) || [];
   //options.xAxis.categories = categories || [];
-  options.title.text = getChartTitle(isAvgData);
+  options.title.text = "DaTos diarios";
+  options.subtitle.text = getChartTitle(isAvgData);
   return (<>
     <WidgetContainer className={classes.root}>
       <TypeSwitch onChange={handleChange} initialChecked={isAvgData} />

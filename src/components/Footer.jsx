@@ -9,7 +9,7 @@ export default class Footer extends Component {
       <Grid container spacing={3} component={Box} pt={2} pb={0} px={6} my={4} >
         <Grid item xs>
           <Grid container spacing={2} direction="column" component={Box} pb={2} >
-            <Grid item component={Box} display="flex" alignItems="center" xs={12} md={3} pb={1.5}>
+            <Grid item component={Box} display="flex" xs={12} md={3} pb={1.5} style={{alignItems: "center"}}>
               <Typography variant="h5">
                 FuenTes de daTos
               </Typography>
@@ -26,7 +26,7 @@ export default class Footer extends Component {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item component={Box} display="flex" alignItems="flex-end" justifyContent="flex-end">
+        <Grid item style={{display: "flex", alignItems: "flex-end", justifyContent: "flex-end"}}>
           <Box display="flex" alignItems="center">
             <Box py={2}>Fork me on GitHub</Box>
             <IconButton edge="end" disableRipple color="primary" aria-label="menu" rel="noopener noreferrer" href="https://github.com/samuelmp/covid-19-dashboard" target="_blank" title="Fork me on GitHub">

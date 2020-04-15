@@ -107,20 +107,18 @@ const styles = theme => ({
 
 
   componentDidUpdate(prevProps) {
-
-    const {color, data} = this.props;
-
-
+    const {color} = this.props;
     window.$(this.peityEl).peity("line", {
       stroke: _styles.fade(scoreColors[color || "grey"], .175),
       fill: _styles.fade(scoreColors[color || "grey"], .075),
       width: "100%",
       height: "90%",
     });
-    if(!Object.equals(prevProps.data, data)) {
-      this.transformDataResults(data)
-    }
+  }
 
+  componentDidMount() {
+    const {data} = this.props;
+    this.transformDataResults(data)
   }
 
   render() {

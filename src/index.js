@@ -13,7 +13,8 @@ const theme = createMuiTheme({
 	palette: {
 		primary: {main: "#F92672"},
 		secondary: green,
-		type: 'dark',
+    type: 'dark',
+    background: {default: "#06121a", paper: "#18242a"}
 	},
 	status: {
 		danger: 'orange',
@@ -36,6 +37,7 @@ const theme = createMuiTheme({
 });
 
 console.clear();
+console.log(theme);
 setTimeout(function() {
   window.location = ''
 }, 5 * 60 * 1000);
