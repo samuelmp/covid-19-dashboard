@@ -88,12 +88,15 @@ const buildSeriesData = (countriesData, isAvgData, type, isInitial = false) => {
 
   const series = [];
   const serieType = type + (isAvgData ? "_avg" : "");
+  const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "China", "US"];
   for (const countryId in countriesData) {
-    const isSerieVisible = countryId !== "China";
-    const beginSeries = countriesData[countryId].beginIndex;
-    const serie = {name: countryId, data: countriesData[countryId].deaths[serieType].slice(beginSeries).map(item => item[1])};
-    if(isInitial) serie["visible"] = isSerieVisible;
-    series.push(serie);
+    if(countries.indexOf(countryId) >= 0) {
+      const isSerieVisible = countryId !== "China";
+      const beginSeries = countriesData[countryId].beginIndex;
+      const serie = {name: countryId, data: countriesData[countryId].deaths[serieType].slice(beginSeries).map(item => item[1])};
+      if(isInitial) serie["visible"] = isSerieVisible;
+      series.push(serie);
+    }
   }
   return series;
 };
