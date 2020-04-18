@@ -48,7 +48,7 @@ const styles = theme => ({
     },
     '& .MuiInputBase-input': {
       color: "#A2A39C",
-      fontSize: "133%"
+      fontSize: "166%"
     },
     '& .MuiAutocomplete-endAdornment': {
       top: "calc(50% - 1rem)"

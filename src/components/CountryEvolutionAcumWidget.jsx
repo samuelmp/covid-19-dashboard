@@ -11,7 +11,7 @@ var _styles = require("@material-ui/core/styles");
 
 const useStyles = makeStyles(theme => ({
   root: {
-    height: "400px"
+    height: "300px"
   },
 }));
 
@@ -42,7 +42,7 @@ const getHighchartsOptions = (countryId) => {
       },
 
       plotLines: countryId === "Spain" ? [{
-        color: 'rgba(255,255,255,.66)',
+        color: 'rgba(255,255,255,.5)',
         width: 2,
         value: 1584140400000,
         dashStyle: "Dash",
@@ -53,12 +53,19 @@ const getHighchartsOptions = (countryId) => {
           y: 8,
           x: 8,
           style: {
-            color: 'rgba(255,255,255,.66)',
+            color: 'rgba(255,255,255,.5)',
           }
         }
       }] : [],
       plotBands: countryId === "Spain" ? [{
-        color: 'rgba(255,255,255,.05)',
+        color: {
+					linearGradient:  { x1: 0, x2: 0, y1: 0, y2: 1 },
+					stops: [
+            [0, 'rgba(255,255,255,.05)'],
+            [.5, 'rgba(255,255,255,.025)'],
+						[1, 'rgba(255,255,255,.0)'],
+					]
+				},
         from: 1585519200000,
         to: 1585519200000 + (1000*60*60*24*12),
         label: {

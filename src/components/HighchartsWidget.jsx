@@ -9,9 +9,7 @@ import { ToggleButtonGroup, ToggleButton } from '@material-ui/lab';
 
 const useStyles = makeStyles(theme => ({
   root: {
-
-    position: "relative"
-
+    position: "relative",
   },
   switch: {
     // position: "absolute",
@@ -144,7 +142,7 @@ const HighchartsWidget = ({ data, type, title, sufix = "" }) => {
     <WidgetContainer className={classes.root}>
       <Grid container direction="column" wrap="nowrap">
         <Grid item xs>
-          <HighchartsReact highcharts={Highcharts} options={options} callback={ afterChartCreated } containerProps = {{ style: {width: "100%"} }} />
+          <HighchartsReact highcharts={Highcharts} options={options} callback={ afterChartCreated } containerProps = {{ style: {width: "100%", height: 300} }} />
         </Grid>
         <Grid item>
           <Grid container>

@@ -37,14 +37,14 @@ const styles = theme => ({
   },
 
   title: {
-    fontSize: "1.8rem",
+    fontSize: "1.6rem",
   },
   score: {
-    fontSize: "3.3rem",
+    fontSize: "3.2rem",
   },
 
   scoreInc: {
-    fontSize: "1.5rem",
+    fontSize: "1.3rem",
     textAlign: "center",
     display: "inline-flex",
     alignItems: "center",
@@ -60,7 +60,7 @@ const styles = theme => ({
   scoreIncText: {
     fontSize: "1rem",
     textAlign: "center",
-    marginTop: "1rem"
+    marginTop: ".4rem"
   },
   scoreDifference: {
     fontSize: "1.2rem",
@@ -77,7 +77,10 @@ const styles = theme => ({
     color: "rgba(166, 226, 46, .9)",
     marginLeft: theme.spacing(1)
   },
-
+  peityGrad: {
+    position: "absolute",
+    top: -100000
+  }
 
 });
 
@@ -110,9 +113,10 @@ const styles = theme => ({
     const {color} = this.props;
     window.$(this.peityEl).peity("line", {
       stroke: _styles.fade(scoreColors[color || "grey"], .175),
-      fill: _styles.fade(scoreColors[color || "grey"], .075),
+      fill: "url(#peityGrad" + color + ")",//_styles.fade(scoreColors[color || "grey"], .075),
       width: "100%",
       height: "90%",
+      strokeWidth: 4,
     });
 
     if(!Object.equals(this.props.data, prevProps.data)) {
@@ -156,7 +160,20 @@ const styles = theme => ({
             ) : ""}
             {!trendText && scoreTrend ? <Typography className={classes.scoreDifference}>{(scoreTrend > 0 ? "+" : "") + (scoreTrend || "")}</Typography> : ""}
           </div>
-          {peityList && <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}>{peityList.join(",")}</span>}
+          {peityList && (
+            <>
+            <span ref={el => this.peityEl = el} className="line" style={{display: "none"}}>{peityList.join(",")}</span>
+            <svg className={classes.peityGrad}>
+              <defs>
+                <linearGradient id={"peityGrad" + color} x2="0" y2="1">
+                  <stop offset="0" stopColor={_styles.fade(scoreColors[color || "grey"], .15)}/>
+                  <stop offset="2" stopColor={_styles.fade(scoreColors[color || "grey"], 0)}/>
+                </linearGradient>
+              </defs>
+            </svg>
+            </>
+          )
+          }
         </WidgetContainer>
       );
     } else {
