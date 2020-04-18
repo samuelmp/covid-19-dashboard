@@ -17,17 +17,20 @@ const useStyles = makeStyles(theme => ({
     // top: theme.spacing(1.5),
     // left: theme.spacing(0),
     // zIndex: 1,
-    backgroundColor: "transparent",
-    '& .MuiToggleButton-root': {
-      height: theme.spacing(3)
-    },
 
+
+  },
+  toggle: {
+    backgroundColor: "transparent",
     '& .MuiButtonBase-root': {
       borderColor: "transparent",
       backgroundColor: "rgba(255, 255, 255, 0.1)",
       '&:hover': {
         borderColor: "rgba(255, 255, 255, 0.15)",
       }
+    },
+    '& .MuiToggleButton-root': {
+      height: theme.spacing(3)
     },
     '& .Mui-selected': {
       color: "rgba(255, 255, 255, 0.5)",
@@ -37,8 +40,8 @@ const useStyles = makeStyles(theme => ({
         borderColor: "rgba(255, 255, 255, 0.15)",
       }
     }
-
   }
+
 }));
 
 const getHighchartsOptions = (title, series, sufix, initialScale) => {
@@ -48,7 +51,7 @@ const getHighchartsOptions = (title, series, sufix, initialScale) => {
       marginTop: 20,
       //marginBottom: 50,
     },
-    "colors": ["#ffa600", "#ff7c43", "#f95d6a", "#d45087", "#a05195", "#665191", "#2f4b7c", "#003f5c"],
+    "colors": ["#ffa600", "#ff7c43", "#F92672", "#d45087", "#a05195", "#665191", "#2f4b7c", "#003f5c"],
     //"colors": ["#006386", "#007b9f", "#0094b6", "#00aecb", "#00c9df", "#00e4f0", "#00ffff"],
 
     title: {
@@ -182,6 +185,7 @@ const TypeSwitch = ({ onChange, initialChecked }) => {
   }
   className={classes.switch} labelPlacement="start" label={t("Normalizar")} />
   );
+
 }
 
 const ScaleSwitch = ({ onChange, initialScale }) => {
@@ -189,11 +193,13 @@ const ScaleSwitch = ({ onChange, initialScale }) => {
   const classes = useStyles();
   const [scale, setScale] = React.useState(initialScale);
   const handleChange = (event, newScale) => {
-    setScale(newScale);
-    onChange && onChange(event, newScale);
+    if (newScale !== null) {
+      setScale(newScale);
+      onChange && onChange(event, newScale);
+    }
   };
   return(
-    <ToggleButtonGroup value={scale} onChange={handleChange} className={classes.switch} exclusive variant="outlined">
+    <ToggleButtonGroup value={scale} onChange={handleChange} className={classes.toggle} exclusive variant="outlined">
       <ToggleButton value="logarithmic" aria-label="log" size="small">{t("Logarítmica")}</ToggleButton>
       <ToggleButton value="linear" aria-label="line" size="small">{t("Lineal")}</ToggleButton>
     </ToggleButtonGroup>

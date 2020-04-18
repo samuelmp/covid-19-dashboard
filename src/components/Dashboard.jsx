@@ -24,7 +24,7 @@ const styles = theme => ({
     padding: "0 2rem",
     paddingBottom: "1rem",
     paddingRight: "1.5rem",
-    flex: "1 1 auto"
+    flex: "0 1 auto"
   },
   headerContainer: {
     paddingTop: theme.spacing(1),
