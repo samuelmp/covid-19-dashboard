@@ -6,7 +6,7 @@ import { t } from '../js/I18n';
 export default class Footer extends Component {
   render() {
     return (
-      <Grid container spacing={3} component={Box} pt={2} pb={0} px={6} my={4} >
+      <Grid container spacing={3} component={Box} pt={2} pb={0} px={6} style={{marginBottom: 0}} >
         <Grid item xs>
           <Grid container spacing={2} direction="column" component={Box} pb={2} >
             <Grid item component={Box} display="flex" xs={12} md={3} pb={1.5} style={{alignItems: "center"}}>
