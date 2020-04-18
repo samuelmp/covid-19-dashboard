@@ -3,13 +3,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 // import 'pace-js/pace.js'
 // import 'pace-js/themes/yellow/pace-theme-minimal.css'
+
 import './index.css';
 import './js/customHighcharts.js';
 import './js/utils.js';
 import App from './App';
-
-
-
 
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
@@ -43,8 +41,8 @@ const theme = createMuiTheme({
 	},
 });
 
-console.clear();
-console.log(theme);
+console.log("M-UI THEME: ", theme);
+
 setTimeout(function() {
   window.location = ''
 }, 60 * 60 * 1000);

@@ -137,8 +137,6 @@ const styles = theme => ({
     if(data) {
       const {score, scoreInc, scoreTrend } = data;
 
-      console.log(score, scoreInc, scoreTrend, trendText);
-
       // const trendColor = (reverseTrend && scoreTrend < 0) || scoreTrend > 0 ? "red" : "green";
       const trendColor = reverseTrend ? (scoreTrend < 0 ? "red" : "green") : (scoreTrend > 0 ? "red" : "green");
 

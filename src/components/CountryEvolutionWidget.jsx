@@ -4,10 +4,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import WidgetContainer from './WidgetContainer.jsx';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
-import { es as esLocale } from 'date-fns/locale/';
+import { es as esLocale, enUS as enLocale } from 'date-fns/locale/';
 import { format } from 'date-fns';
 import { Switch, FormControlLabel } from '@material-ui/core';
 import cloneDeep from 'lodash.clonedeep';
+import { t, isLanguage } from '../js/I18n';
 var _styles = require("@material-ui/core/styles");
 
 const useStyles = makeStyles(theme => ({
@@ -33,7 +34,7 @@ const getYAxis = (isResponsive = false) => {
   }, { // Secondary yAxis
     title: {
       enabled: !isResponsive,
-      text: 'Fallecidos',
+      text: t('Fallecidos'),
     },
     labels: {
       align: 'right',
@@ -48,7 +49,7 @@ const getYAxis = (isResponsive = false) => {
   }, { // Secondary yAxis
     title: {
       enabled: !isResponsive,
-      text: 'PosiTivos - AlTas',
+      text: t('PosiTivos - AlTas'),
     },
   }];
 
@@ -77,7 +78,7 @@ const getHighchartsOptions = (countryId) => {
       labels: {
         formatter: function () {
           return format(this.value, "dd MMM", {
-            locale: esLocale
+            locale: isLanguage("es") ? esLocale : enLocale
           });
         },
         padding: 10
@@ -88,7 +89,7 @@ const getHighchartsOptions = (countryId) => {
         value: 1584140400000,
         dashStyle: "Dash",
         label: {
-          text: 'Estado Alarma',
+          text: t('Estado Alarma'),
           verticalAlign: 'Top',
           textAlign: 'left',
           y: 8,
@@ -110,7 +111,7 @@ const getHighchartsOptions = (countryId) => {
         from: 1585519200000,
         to: 1585519200000 + (1000*60*60*24*12),
         label: {
-          text: 'Trabajos Esenciales',
+          text: t('Trabajos Esenciales'),
           style: {
             color: 'rgba(255,255,255,.66)',
           }
@@ -143,21 +144,21 @@ const buildSeriesData = (data, isAvgData) => {
   const serieType = isAvgData ? "abs_avg" : "abs";
   const beginSeries = data.beginIndex;
   series.push({
-    name: "Casos",
+    name: t("PosiTives"),
     data: cloneDeep(data.confirmed[serieType]).slice(beginSeries),
     lineColor: _styles.fade(Highcharts.getOptions().colors[0], .8),
     color: _styles.fade(Highcharts.getOptions().colors[0], .8),
   });
 
   series.push({
-    name: "Altas",
+    name: t("AlTas"),
     data: cloneDeep(data.recovered[serieType]).slice(beginSeries),
     lineColor: _styles.fade(Highcharts.getOptions().colors[1], .8),
     color: _styles.fade(Highcharts.getOptions().colors[1], .8),
   });
 
   series.push({
-    name: "Fallecidos",
+    name: t("Fallecidos"),
     data: cloneDeep(data.deaths[serieType]).slice(beginSeries),
     yAxis: 1,
     lineColor: _styles.fade(Highcharts.getOptions().colors[2], .8),
@@ -166,7 +167,7 @@ const buildSeriesData = (data, isAvgData) => {
   return series;
 };
 
-const getChartTitle = isAvgData => `${isAvgData ? "(media de 7 días)" : ""}`;
+const getChartTitle = isAvgData => `${isAvgData ? t("(media de 7 días)") : ""}`;
 
 let internalChart;
 let chartSeriesData;
@@ -192,7 +193,7 @@ const CountryEvolutionWidget = ({ data, countryId }) => {
   //options.series = series || [];
   options.series = (data && buildSeriesData(data, isAvgData)) || [];
   //options.xAxis.categories = categories || [];
-  options.title.text = "DaTos diarios";
+  options.title.text = t("DaTos diarios");
   options.subtitle.text = getChartTitle(isAvgData);
   return (<>
     <WidgetContainer className={classes.root}>
@@ -218,6 +219,6 @@ const TypeSwitch = ({ onChange, initialChecked }) => {
   <FormControlLabel control={
     <Switch color="primary" disableRipple size="small" checked={checked} onChange={handleChange} />
   }
-  className={classes.switch} labelPlacement="start" label="Normalizar" />
+  className={classes.switch} labelPlacement="start" label={t("Normalizar")} />
   );
 }

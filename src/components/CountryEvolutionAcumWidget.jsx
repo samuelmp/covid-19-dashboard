@@ -4,8 +4,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import WidgetContainer from './WidgetContainer.jsx';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
-import { es as esLocale } from 'date-fns/locale/';
+import { es as esLocale, enUS as enLocale } from 'date-fns/locale/';
 import { format } from 'date-fns';
+import { t, isLanguage } from '../js/I18n';
 
 var _styles = require("@material-ui/core/styles");
 
@@ -36,7 +37,7 @@ const getHighchartsOptions = (countryId) => {
       labels: {
         formatter: function () {
           return format(this.value, "dd MMM", {
-            locale: esLocale
+            locale: isLanguage("es") ? esLocale : enLocale
           });
         },
       },
@@ -47,7 +48,7 @@ const getHighchartsOptions = (countryId) => {
         value: 1584140400000,
         dashStyle: "Dash",
         label: {
-          text: 'Estado Alarma',
+          text: t('Estado Alarma'),
           verticalAlign: 'Top',
           textAlign: 'left',
           y: 8,
@@ -69,7 +70,7 @@ const getHighchartsOptions = (countryId) => {
         from: 1585519200000,
         to: 1585519200000 + (1000*60*60*24*12),
         label: {
-          text: 'Trabajos Esenciales',
+          text: t('Trabajos Esenciales'),
           style: {
             color: 'rgba(255,255,255,.66)',
           }
@@ -111,17 +112,17 @@ const buildSeriesData = data => {
   const series = [];
   const beginSeries = data.beginIndex;
   series.push({
-    name: "Casos",
+    name: t("PosiTivos"),
     data: data.confirmed.acum.slice(beginSeries)
   });
 
   series.push({
-    name: "Altas",
+    name: t("AlTas"),
     data: data.recovered.acum.slice(beginSeries)
   });
 
   series.push({
-    name: "Fallecidos",
+    name: t("Fallecidos"),
     data: data.deaths.acum.slice(beginSeries)
   });
 
@@ -149,7 +150,7 @@ const CountryEvolutionAcumWidget = ({ data, countryId }) => {
       color: _styles.fade(seriesColors[index], .8)
     };
   });
-  options.title.text = "DaTos acumulados";
+  options.title.text = t("DaTos acumulados");
   return (<>
     <WidgetContainer className={classes.root}>
       <HighchartsReact highcharts={Highcharts} options={options} containerProps = {{ style: {width: "100%"} }} />

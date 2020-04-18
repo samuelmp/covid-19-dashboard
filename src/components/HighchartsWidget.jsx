@@ -6,6 +6,7 @@ import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
 import { Switch, FormControlLabel, Grid, Typography } from '@material-ui/core';
 import { ToggleButtonGroup, ToggleButton } from '@material-ui/lab';
+import { t } from '../js/I18n';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -47,6 +48,9 @@ const getHighchartsOptions = (title, series, sufix, initialScale) => {
       marginTop: 20,
       //marginBottom: 50,
     },
+    "colors": ["#ffa600", "#ff7c43", "#f95d6a", "#d45087", "#a05195", "#665191", "#2f4b7c", "#003f5c"],
+    //"colors": ["#006386", "#007b9f", "#0094b6", "#00aecb", "#00c9df", "#00e4f0", "#00ffff"],
+
     title: {
         text: title,
         y: 2,
@@ -54,7 +58,7 @@ const getHighchartsOptions = (title, series, sufix, initialScale) => {
         align: "right"
     },
     subtitle: {
-      text: "Media de los últimos 7 días",
+      text: t("Media de los últimos 7 días"),
       align: "right",
       x: -10,
       y: 24
@@ -65,7 +69,7 @@ const getHighchartsOptions = (title, series, sufix, initialScale) => {
     yAxis: {
       type: initialScale,
       title: {
-          text: 'Fallecidos',
+          text: t('Fallecidos'),
           disabled: true
       }
     },
@@ -127,7 +131,7 @@ const HighchartsWidget = ({ data, type, title, sufix = "" }) => {
     chartRef.current = chart;
   };
 
-  const getChartTitle = isAvgData => ` ${isAvgData ? "Media de los 7 últimos días" : ""}`;
+  const getChartTitle = isAvgData => ` ${isAvgData ? t("Media de los 7 últimos días") : ""}`;
   const typeKey = `globalCountriesEvolution.${type}.isAvgData`;
   const isAvgData = localStorage.getItem(typeKey) ? (localStorage.getItem(typeKey) === "true") : true;
   const scaleKey = `globalCountriesEvolution.${type}.scale`;
@@ -150,7 +154,7 @@ const HighchartsWidget = ({ data, type, title, sufix = "" }) => {
               <TypeSwitch onChange={handleTypeChange} initialChecked={isAvgData} />
             </Grid>
             <Grid item xs style={{display: "inline-flex", justifyContent: "flex-end", alignItems: "center", paddingRight: 8}}>
-              <Typography variant="caption" style={{marginRight: 8}} color="textSecondary" >Tipo de escala</Typography>
+              <Typography variant="caption" style={{marginRight: 8}} color="textSecondary" >{t("Tipo de escala")}</Typography>
               <ScaleSwitch onChange={handleScaleChange} initialScale={initialScale} />
             </Grid>
           </Grid>
@@ -176,7 +180,7 @@ const TypeSwitch = ({ onChange, initialChecked }) => {
   <FormControlLabel control={
     <Switch color="primary" disableRipple size="small" checked={checked} onChange={handleChange} />
   }
-  className={classes.switch} labelPlacement="start" label="Normalizar" />
+  className={classes.switch} labelPlacement="start" label={t("Normalizar")} />
   );
 }
 
@@ -190,8 +194,8 @@ const ScaleSwitch = ({ onChange, initialScale }) => {
   };
   return(
     <ToggleButtonGroup value={scale} onChange={handleChange} className={classes.switch} exclusive variant="outlined">
-      <ToggleButton value="logarithmic" aria-label="log" size="small">Logarítmica</ToggleButton>
-      <ToggleButton value="linear" aria-label="line" size="small">Lineal</ToggleButton>
+      <ToggleButton value="logarithmic" aria-label="log" size="small">{t("Logarítmica")}</ToggleButton>
+      <ToggleButton value="linear" aria-label="line" size="small">{t("Lineal")}</ToggleButton>
     </ToggleButtonGroup>
   );
 

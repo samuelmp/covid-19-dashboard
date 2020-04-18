@@ -13,8 +13,10 @@ import CountryEvolutionWidget from './CountryEvolutionWidget.jsx';
 import HighchartsWidget from './HighchartsWidget.jsx';
 import CountryEvolutionAcumWidget from './CountryEvolutionAcumWidget.jsx';
 
-import { es as esLocale } from 'date-fns/locale/';
-import { format, isYesterday, isToday } from 'date-fns'
+import { es as esLocale, enUS as enLocale } from 'date-fns/locale/';
+import { format, isYesterday, isToday } from 'date-fns';
+
+import { t, isLanguage } from '../js/I18n';
 
 const styles = theme => ({
   root: {
@@ -85,9 +87,9 @@ class Dashboard extends Component {
 
   constructor(props) {
     super(props);
-
+    this.recomendedCountries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "China", "US"];
     const countryName = localStorage.getItem(`dashboard.selectedCountryId`) || "Spain";
-    const firstLetter = countryName.toUpperCase();
+    const firstLetter = this.recomendedCountries.indexOf(countryName) >=0 ? "*" : countryName.toUpperCase();
     this.state = {
       countriesData: {},
       selectedCountryId: {
@@ -97,6 +99,7 @@ class Dashboard extends Component {
       countriesList: [],
       isLoading: true
     };
+
   }
 
   componentDidMount = () => {
@@ -110,18 +113,17 @@ class Dashboard extends Component {
   }
 
   getCountriesList = (countriesData) => {
-    const recomendedCountries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "China", "US"];
+
     const recomendedText = "*";
 
     const allCountriesObj = Object.keys(countriesData).map((option) => {
-      const groupText = recomendedCountries.indexOf(option) >= 0 ? recomendedText : option[0].toUpperCase();
+      const groupText = this.recomendedCountries.indexOf(option) >= 0 ? recomendedText : option[0].toUpperCase();
       return {
-        firstLetter: groupText,
-        title: option,
+        firstLetter: groupText, title: option,
       };
     });
-    const recomendedCountriesObj = allCountriesObj.filter(country => country.title && recomendedCountries.indexOf(country.title) >=0);
-    const otherCountriesObj = allCountriesObj.filter(country => country.title && recomendedCountries.indexOf(country.title) < 0);
+    const recomendedCountriesObj = allCountriesObj.filter(country => country.title && this.recomendedCountries.indexOf(country.title) >=0);
+    const otherCountriesObj = allCountriesObj.filter(country => country.title && this.recomendedCountries.indexOf(country.title) < 0);
     recomendedCountriesObj.sort((a,b) => a.title.localeCompare(b.title))
     otherCountriesObj.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))
 
@@ -142,9 +144,9 @@ class Dashboard extends Component {
     let updateString = "";
     if(countryData) {
       const udateDate = countryData.updateDate;
-      const dayText = (isToday(udateDate) && "Hoy") || (isYesterday(udateDate) && "Ayer") || format(udateDate, "EEEE", {locale: esLocale});
-      updateString = format(udateDate, `'${dayText}', dd MMMM 'a las' H:mm`, {
-        locale: esLocale
+      const dayText = (isToday(udateDate) && t("Hoy")) || (isYesterday(udateDate) && t("Ayer")) || format(udateDate, "EEEE", {locale: isLanguage("es") ? esLocale : enLocale});
+      updateString = format(udateDate, `'${dayText}', dd MMMM '${t("a las")}' H:mm`, {
+        locale: isLanguage("es") ? esLocale : enLocale
       });
     }
 
@@ -155,7 +157,7 @@ class Dashboard extends Component {
         { isLoading ?
           <Box className={classes.loadingWrapper}>
             <div className="sk-folding-cube">
-              <Box className={classes.loadingText}>LOADING</Box>
+              <Box className={classes.loadingText}>{t('CARGANDO')}</Box>
               <div className="sk-cube1 sk-cube"></div>
               <div className="sk-cube2 sk-cube"></div>
               <div className="sk-cube4 sk-cube"></div>
@@ -168,17 +170,17 @@ class Dashboard extends Component {
             <Grid container spacing={3} className={classes.headerContainer} >
               <Grid item xs={3}>
                 <Grid container spacing={0} direction="column" style={{paddingTop: "1.2rem"}} >
-                  <Grid item><Typography variant="body1" >ACTUALIZADO: </Typography></Grid>
+                  <Grid item><Typography variant="body1" >{t("ACTUALIZADO: ")}</Typography></Grid>
                   <Grid item><Typography variant="body1" color="primary" >{updateString.toUpperCase()}</Typography></Grid>
                 </Grid>
               </Grid>
               <Grid item xs className={classes.titleContainer}>
-                <Typography variant="h4" className={classes.mainTitle} >Evolución COVID-19 en </Typography>
+                <Typography variant="h4" className={classes.mainTitle} >{t("Evolución COVID-19 en ")}</Typography>
                 <Autocomplete
                   id="combo-box-countries"
                   options={countriesList || []}
                   getOptionLabel={(option) => (option && option.title) || ""}
-                  value={countriesList && Object.keys(countriesList).length > 0 && selectedCountryId}
+                  value={countriesList && countriesList.length > 0 && Object.keys(countriesList).length > 0 && selectedCountryId}
                   onChange={this.handleChangeCountry}
                   style={{ width: 200 }}
                   className={classes.countrySelector}
@@ -188,6 +190,7 @@ class Dashboard extends Component {
                   blurOnSelect
                   ListboxProps={{className: classes.countrySelectorList}}
                   renderInput={(params) => <TextField {...params} variant="outlined" />}
+                  getOptionSelected={(a,b) => a.firstLetter === b.firstLetter && a.title === b.title}
                 />
               </Grid>
               <Grid item xs={3}></Grid>
@@ -197,17 +200,17 @@ class Dashboard extends Component {
               <Grid item xs={12} lg={4} style={{paddingRight: "1.5rem"}}>
                 <Grid container spacing={3} component={Box} height="calc(100% + 24px)">
                   <Grid item xs={6} sm={6} lg={6}>
-                    <Score title="PosiTivos" color="blue" data={countryData.confirmed} />
+                    <Score title={t("PosiTivos")} color="blue" data={countryData.confirmed} />
                   </Grid>
                   <Grid item xs={6} sm={6} lg={6}>
-                    <Score title="AlTas" color="green" reverseTrend data={countryData.recovered} />
+                    <Score title={t("AlTas")} color="green" reverseTrend data={countryData.recovered} />
                   </Grid>
                   <Grid item xs={6} sm={6} lg={6}>
-                    <Score title="Fallecidos" color="red" data={countryData.deaths} />
+                    <Score title={t("Fallecidos")} color="red" data={countryData.deaths} />
                   </Grid>
                   <Grid item xs={6} sm={6} lg={6}>
-                    <Score title="Casos esTimados" color="orange"
-                      trendText = "* Basado en una tasa de fallecimienTos del 1%"
+                    <Score title={t("Casos esTimados")} color="orange"
+                      trendText ={t("* Basado en una tasa de fallecimienTos del 1%")}
                       data={countryData.deaths ? {...countryData.deaths, score: countryData.deaths.score * 100} : undefined}
                     />
                   </Grid>
@@ -227,18 +230,18 @@ class Dashboard extends Component {
 
             <Grid container spacing={3} component={Box} pt={1} >
               <Grid item xs>
-                <Typography variant="h4" className={classes.mainTitle} >COVID-19 Evolución global basada en fallecimienTos</Typography>
+                <Typography variant="h4" className={classes.mainTitle} >{t("COVID-19 Evolución global basada en fallecimienTos")}</Typography>
               </Grid>
             </Grid>
             <Grid container spacing={3} component={Box} pt={1} pr={0} >
               <Grid item xs={12} md={6} lg={4} style={{marginBottom: 24}}>
-                <HighchartsWidget data={countriesData} type="acum" title="FallecimienTos acumulados" />
+                <HighchartsWidget data={countriesData} type="acum" title={t("FallecimienTos acumulados")} />
               </Grid>
               <Grid item xs={12} md={6} lg={4} style={{marginBottom: 24}}>
-                <HighchartsWidget data={countriesData} type="abs" title="FallecimienTos diarios" />
+                <HighchartsWidget data={countriesData} type="abs" title={t("FallecimienTos diarios")} />
               </Grid>
               <Grid item xs={12} md={6} lg={4} style={{marginBottom: 24}}>
-                <HighchartsWidget data={countriesData} type="growth" title="Tasa de crecimiento" sufix="%" />
+                <HighchartsWidget data={countriesData} type="growth" title={t("Tasa de crecimiento")} sufix="%" />
               </Grid>
             </Grid>
           </>
