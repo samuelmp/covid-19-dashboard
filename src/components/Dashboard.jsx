@@ -16,7 +16,7 @@ import CountryEvolutionAcumWidget from './CountryEvolutionAcumWidget.jsx';
 import { es as esLocale, enUS as enLocale } from 'date-fns/locale/';
 import { format, isYesterday, isToday } from 'date-fns';
 
-import { t, isLanguage } from '../js/I18n';
+import { t, isLanguage, getCountryCode } from '../js/I18n';
 
 const styles = theme => ({
   root: {
@@ -82,14 +82,24 @@ const styles = theme => ({
   }
 });
 
+const countryResolver = {
+  "IT": "Italy",
+  "ES": "Spain",
+  "DE": "Germany",
+  "FR": "Frence",
+  "GB": "United Kingdom",
+  "US": "US",
+  "AR": "Argentina"
+}
 
 class Dashboard extends Component {
 
   constructor(props) {
     super(props);
     this.recomendedCountries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "China", "US"];
-    const countryName = localStorage.getItem(`dashboard.selectedCountryId`) || "Spain";
-    const firstLetter = this.recomendedCountries.indexOf(countryName) >=0 ? "*" : countryName.toUpperCase();
+    const countryByLang = countryResolver[getCountryCode()];
+    const countryName = localStorage.getItem(`dashboard.selectedCountryId`) || countryByLang || "Spain";
+    const firstLetter = this.recomendedCountries.indexOf(countryName) >=0 ? "*" : countryName[0].toUpperCase();
     this.state = {
       countriesData: {},
       selectedCountryId: {

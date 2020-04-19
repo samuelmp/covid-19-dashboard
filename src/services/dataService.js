@@ -280,14 +280,14 @@ const transformGlobalResults = (global_deaths, global_confirmed, global_recovere
 
 const resolveGlobalData = (globalData, type, updateDate) => {
 
-  const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
+  //const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
   const headers = globalData[0];
 
   globalData.forEach((line, index) => {
 
-    if(line[0] === "" || countries.indexOf(line[0]) >= 0 ) {
+    // if(line[0] === "" || countries.indexOf(line[0]) >= 0 ) {
 
-      const countryData = addNewCountryData(line[1]);
+      const countryData = addNewCountryData(line[1] + (line[0] ? " - " + line[0] : ""));
       resetArrays(countryData[type]);
 
 
@@ -321,7 +321,7 @@ const resolveGlobalData = (globalData, type, updateDate) => {
         }
       }
       countryData[type] = { ...countryData[type],  ...getScores(countryData[type])};
-    }
+    // }
   });
 
 };
