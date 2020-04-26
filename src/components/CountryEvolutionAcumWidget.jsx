@@ -21,17 +21,33 @@ const getHighchartsOptions = (countryId) => {
 
   return {
     chart: {
-      type: 'area',
-      marginTop: 40,
+      type: 'spline',
+      marginTop: undefined,
     },
 
     title: {
       text: "",
-      y: 2,
-      x: -2,
+      // y: 2,
+      // x: -2,
       align: "right"
     },
-
+    subtitle: {
+      text: "",
+      // y: 20,
+      // x: -2,
+      align: "right"
+    },
+    caption: {
+      text: "",
+      align: "right",
+      style: {
+        color: "#AAAAAA",
+        "fontSize": "15px"
+      }
+    },
+    tooltip: {
+      valueDecimals: 2,
+    },
     xAxis: {
       type: 'datetime',
       labels: {
@@ -49,6 +65,22 @@ const getHighchartsOptions = (countryId) => {
         dashStyle: "Dash",
         label: {
           text: t('Estado Alarma'),
+          verticalAlign: 'Top',
+          textAlign: 'left',
+          y: 8,
+          x: 8,
+          style: {
+            color: 'rgba(255,255,255,.5)',
+          }
+        }
+      },
+      {
+        color: 'rgba(255,255,255,.5)',
+        width: 2,
+        value: 1587852000000,
+        dashStyle: "Dash",
+        label: {
+          text: t('Salida niños'),
           verticalAlign: 'Top',
           textAlign: 'left',
           y: 8,
@@ -89,6 +121,8 @@ const getHighchartsOptions = (countryId) => {
       title: {
         enabled: false,
       },
+      max: 100,
+      min: 0
     } ,
     responsive: {
       rules: [{
@@ -111,19 +145,15 @@ const buildSeriesData = data => {
 
   const series = [];
   const beginSeries = data.beginIndex;
+
   series.push({
-    name: t("PosiTivos"),
-    data: data.confirmed.acum.slice(beginSeries)
+    name: t("Tasa de recuperación"),
+    data: data.recoveredRate.acum.slice(beginSeries)
   });
 
   series.push({
-    name: t("AlTas"),
-    data: data.recovered.acum.slice(beginSeries)
-  });
-
-  series.push({
-    name: t("Fallecidos"),
-    data: data.deaths.acum.slice(beginSeries)
+    name: t("Tasa de mortalidad"),
+    data: data.deathsRate.acum.slice(beginSeries)
   });
 
   return series;
@@ -133,7 +163,6 @@ const buildSeriesData = data => {
 const CountryEvolutionAcumWidget = ({ data, countryId }) => {
   const classes = useStyles();
   const seriesColors = [
-    Highcharts.getOptions().colors[0],
     Highcharts.getOptions().colors[1],
     Highcharts.getOptions().colors[2]
   ];
@@ -150,7 +179,11 @@ const CountryEvolutionAcumWidget = ({ data, countryId }) => {
       color: _styles.fade(seriesColors[index], .8)
     };
   });
-  options.title.text = t("DaTos acumulados");
+  options.title.text = t("Resultado de los casos (Recuperados o fallecidos)");
+  options.subtitle.text = t("Resultado del total de casos cerrados (Tasa de recuperación frente a tasa de mortalidad)");
+
+  // options.caption.text = t("<b>Resultado del total de casos cerrados (tasa de recuperación frente a tasa de mortalidad)</b><br/><em>(Total acumulado de muertes y recuperaciones sobre el número acumulado de casos cerrados)</em>");
+  // options.caption.text = t("(Total acumulado de muertes y recuperaciones sobre el número acumulado de casos cerrados)");
   return (<>
     <WidgetContainer className={classes.root}>
       <HighchartsReact highcharts={Highcharts} options={options} containerProps = {{ style: {width: "100%"} }} />

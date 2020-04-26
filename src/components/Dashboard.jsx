@@ -113,7 +113,7 @@ class Dashboard extends Component {
   }
 
   componentDidMount = () => {
-    requestData((data, countriesData) => {
+    requestData((countriesData) => {
       this.setState({
         countriesData: countriesData,
         countriesList: this.getCountriesList(countriesData),

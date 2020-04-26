@@ -51,10 +51,12 @@ const getHighchartsOptions = (title, series, sufix, initialScale) => {
       marginTop: 20,
       //marginBottom: 50,
     },
-    "colors": ["#6dbad6", "#A6E22E", "#e74c3c", "#F92672","#ffa600", "#ff7c43", "#F92672", "#d45087", "#a05195", "#665191", "#2f4b7c", "#003f5c"],
-    //"colors": ["#006386", "#007b9f", "#0094b6", "#00aecb", "#00c9df", "#00e4f0", "#00ffff"],
+    "colors": ["#6dbad6", "#A6E22E", "#e74c3c", "#F92672", "#003f5c", "#665191","#ffa600", "#1863fd", "#d45087", "#2f4b7c"],
+    //"colors": ["#006386", "#007b9f", "#0094b6", "#00c9df", "#00e4f0", "#00ffff"],
+    //colors: ["#488f31", "#8eb15b", "#c9d38d", "#f6c385", "#ef8860", "#de425b"],
+    //colors: ["#003f5c", "#444e86", "#955196", "#dd5182", "#ff6e54", "#ffa600"],
 
-    title: {
+        title: {
         text: title,
         y: 2,
         x: -8,

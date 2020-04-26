@@ -25,6 +25,11 @@
   "DaTos acumulados": "AccumulaTed daTa",
   "DaTos diarios": "Daily daTa",
   "(media de 7 días)": "(average of last 7 days)",
-  "PosiTivos - AlTas": "PosiTives - Recovered"
-
+  "PosiTivos - AlTas": "PosiTives - Recovered",
+  "Acumulado": "Accumulated",
+  "Resultado de los casos (Recuperados o fallecidos)": "Outcome of Cases (Recovery or Death)",
+  "Resultado del total de casos cerrados (tasa de recuperación frente a tasa de mortalidad)": "Outcome of total closed cases (recovery rate vs death rate)",
+  "<b>Resultado del total de casos cerrados (tasa de recuperación frente a tasa de mortalidad)</b><br/><em>(Total acumulado de muertes y recuperaciones sobre el número acumulado de casos cerrados)</em>": "<b>Outcome of total closed cases (recovery rate vs death rate)</b><br/><em>(Cumulative total deaths and recoveries over cumulative number of closed cases)</em>",
+  "Tasa de recuperación": "Recovery rate",
+  "Tasa de mortalidad": "Death rate"
 }

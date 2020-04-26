@@ -6,7 +6,7 @@ import { Typography } from '@material-ui/core';
 import TrendingUpRoundedIcon from '@material-ui/icons/TrendingUpRounded';
 import TrendingDownRoundedIcon from '@material-ui/icons/TrendingDownRounded';
 import WidgetContainer from './WidgetContainer.jsx';
-
+import { isLanguage } from '../js/I18n';
 const _styles = require("@material-ui/core/styles");
 
 const scoreColors = {
@@ -145,7 +145,7 @@ const styles = theme => ({
         <WidgetContainer className={classes.scoreWidget} >
           {title && <div className={classes.title}>{title}</div>}
           {score && <div className={classes.score} style={{color: scoreColorCode}}>
-            {score.toLocaleString("it-IT")}
+            {isLanguage("es") ? score.toLocaleString("it-IT") : score.toLocaleString("en-US") }
           </div>
           }
 
