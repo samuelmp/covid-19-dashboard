@@ -295,7 +295,7 @@ const resolveGlobalData = (globalData, type, updateDate) => {
 
         const acumData = (data && parseInt(data)) || 0;
         const lastAcumData = (index > 5 && parseInt(line[index-1])) || 0;
-        const absData = (acumData && (acumData - lastAcumData) ) || 0;
+        const absData = (acumData && (acumData - lastAcumData >= 0) && (acumData - lastAcumData) ) || 0;
         countryData[type].acum.push([timestamp, acumData]);
         countryData[type].acum_avg.push([timestamp, getAverageData(countryData[type].acum, countryData[type].acum.length-1)]);
         countryData[type].abs.push([timestamp, absData]);
