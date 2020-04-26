@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import { format, parse, getTime } from 'date-fns';
 import cloneDeep from 'lodash.clonedeep';
 
+
 const countriesData = {};
 
 const typeTemplate = {
@@ -22,100 +23,64 @@ const countryTemplate = {
   confirmed: cloneDeep(typeTemplate),
   recovered: cloneDeep(typeTemplate),
   deaths: cloneDeep(typeTemplate),
+  recoveredRate: {acum: []},
+  deathsRate: {acum: []},
   updateDate: 0,
   beginDatetime: 0,
   beginIndex: 0
 }
 
-
+Papa.parsePromise = function(file, options) {
+  return new Promise(function(complete, error) {
+    Papa.parse(file, {download: true, skipEmptyLines: true, complete, error, ...options});
+  });
+};
 
 export const requestData = (callback) => {
 
   const rawDataObj = {
     spain: false,
-    global_deaths: false
+    global_deaths: false,
+    global_date: false,
   };
 
-  // Spain parsin data
-  Papa.parse("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/nacional_covid19.csv", {
-    download: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-      console.log("Parsing Spain results...");
-      rawDataObj.spain = results.data;
+  const requests = [
+    // Spain parsin data
+    Papa.parsePromise("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/nacional_covid19.csv"),
+    Papa.parsePromise("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/fechas.md", {delimiter: "|"}),
+    // Global parsin data
+    Papa.parsePromise("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"),
+    Papa.parsePromise("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"),
+    Papa.parsePromise("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"),
+    window.$.get({url: "https://api.github.com/repos/CSSEGISandData/COVID-19/commits?path=csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"}),
+    // Papa.parsePromise("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"),
+    // Papa.parsePromise("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"),
+    // window.$.get({url: "https://api.github.com/repos/CSSEGISandData/COVID-19/commits?path=csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"}),
 
-      Papa.parse("https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/fechas.md", {
-        download: true,
-        delimiter: "|",
-        skipEmptyLines: true,
-        complete: function(datesResults) {
+  ];
 
-          rawDataObj.spain_dates = datesResults.data;
-          transformData(rawDataObj, callback);
-        }
-      });
-    },
-    error: function(err, file, inputElem, reason) {
-      console.log(err);
-    },
+  Promise.all(requests).then(results => {
+    console.log("Resolved requests: ", results);
+    rawDataObj.spain = results[0].data;
+    rawDataObj.spain_dates = results[1].data;
+
+    rawDataObj.global_deaths = results[2].data;
+    rawDataObj.global_confirmed = results[3].data;
+    rawDataObj.global_recovered = results[4].data;
+    if(results[5] && results[5][0] && results[5][0].commit && results[5][0].commit.author) {
+      rawDataObj.global_date = results[5][0].commit.author.date;
+    }
+
+    // rawDataObj.US_deaths = results[6].data;
+    // rawDataObj.US_confirmed = results[7].data;
+    // if(results[8] && results[8][0] && results[8][0].commit && results[8][0].commit.author) {
+    //   rawDataObj.US_date = results[8][0].commit.author.date;
+    // }
+
+    transformData(rawDataObj, callback);
+  }, (error) => {
+    console.error(error);
   });
-
-  // Global parsin data
-  Papa.parse(
-    "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
-  , {
-    download: true,
-    complete: function(results) {
-      console.log("Parsing Global results...");
-      rawDataObj.global_deaths = results.data;
-
-      Papa.parse(
-        "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
-      , {
-        download: true,
-        complete: function(results) {
-          console.log("Parsing Global results...");
-          rawDataObj.global_confirmed = results.data;
-
-          Papa.parse(
-            "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
-          , {
-            download: true,
-            complete: function(results) {
-              console.log("Parsing Global results...");
-              rawDataObj.global_recovered = results.data;
-
-              window.$.get({url: "https://api.github.com/repos/CSSEGISandData/COVID-19/commits?path=csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
-                success: data => {
-                  if(data && data[0] && data[0].commit && data[0].commit.author) {
-                    rawDataObj.global_date = data[0].commit.author.date;
-                  }
-                  transformData(rawDataObj, callback);
-                },
-                error: () => {
-                  rawDataObj.global_date = false;
-                  transformData(rawDataObj, callback);
-                }
-              });
-              //
-
-            },
-            error: function(err, file, inputElem, reason) {
-              console.log(err);
-            },
-          });
-        },
-        error: function(err, file, inputElem, reason) {
-          console.log(err);
-        },
-      });
-
-    },
-    error: function(err, file, inputElem, reason) {
-      console.log(err);
-    },
-  });
-
 
 };
 
@@ -134,13 +99,12 @@ const transformData = (rawDataObj, callback) => {
   ) {
 
     rawDataObj = handleRawData(rawDataObj);
-    const chartData = {
-      global_deaths: false,
-    }
+    console.log("rawDataObj", rawDataObj);
     transformSpainResults(rawDataObj.spain, rawDataObj.spain_dates);
+    //transformUSResults(rawDataObj.US_deaths, rawDataObj.US_confirmed, rawDataObj.US_date);
     transformGlobalResults(rawDataObj.global_deaths, rawDataObj.global_confirmed, rawDataObj.global_recovered, rawDataObj.global_date);
 
-    callback(chartData, countriesData);
+    callback(countriesData);
   }
 }
 
@@ -189,9 +153,32 @@ const handleRawData = (rawDataObj) => {
     }
   });
 
-  rawDataObj.global_deaths[0].slice(-1)!==lastSpainDateData && rawDataObj.global_deaths[0].push(lastSpainDateData);
-  rawDataObj.global_confirmed[0].slice(-1)!==lastSpainDateData && rawDataObj.global_confirmed[0].push(lastSpainDateData);
-  rawDataObj.global_recovered[0].slice(-1)!==lastSpainDateData && rawDataObj.global_recovered[0].push(lastSpainDateData);
+  rawDataObj.global_deaths[0].slice(-1)     !== lastSpainDateData && rawDataObj.global_deaths[0].push(lastSpainDateData);
+  rawDataObj.global_confirmed[0].slice(-1)  !== lastSpainDateData && rawDataObj.global_confirmed[0].push(lastSpainDateData);
+  rawDataObj.global_recovered[0].slice(-1)  !== lastSpainDateData && rawDataObj.global_recovered[0].push(lastSpainDateData);
+
+  // Transform US data to looks like global data
+  // rawDataObj.US_deaths.splice(1, 3202);
+  // rawDataObj.US_deaths.splice(-3);
+  // rawDataObj.US_deaths.forEach(row => {
+  //   row.splice(0, 6);
+  //   row.splice(4, 5);
+  //   row.forEach( (cell, i, row) => {
+  //     if(i>=5) row[i] = (parseInt(row[i]) + parseInt(row[i-1])).toString();
+  //   });
+  // });
+  // rawDataObj.US_confirmed.splice(1, 3202);
+  // rawDataObj.US_confirmed.splice(-3);
+  // rawDataObj.US_confirmed.forEach(row => {
+  //   row.splice(0, 6);
+  //   row.splice(4, 5);
+  //   row.forEach( (cell, i, row) => {
+  //     if(i>=5) row[i] = (parseInt(row[i]) + parseInt(row[i-1])).toString();
+  //   });
+  // });
+
+  // rawDataObj.global_deaths = rawDataObj.global_deaths.concat(rawDataObj.US_deaths.slice(1));
+  // rawDataObj.global_confirmed = rawDataObj.global_confirmed.concat(rawDataObj.US_confirmed.slice(1));
 
   return rawDataObj;
 };
@@ -276,18 +263,20 @@ const transformGlobalResults = (global_deaths, global_confirmed, global_recovere
   resolveGlobalData(global_deaths, "deaths", global_date);
   resolveGlobalData(global_confirmed, "confirmed", global_date);
   resolveGlobalData(global_recovered, "recovered", global_date);
+  resolveConfirmedDeathRate();
+
 };
 
 const resolveGlobalData = (globalData, type, updateDate) => {
 
-  const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
+  //const countries = ["Italy", "Spain", "Germany", "France", "United Kingdom", "Hubei", "US"];
   const headers = globalData[0];
 
   globalData.forEach((line, index) => {
 
-    if(line[0] === "" || countries.indexOf(line[0]) >= 0 ) {
+    // if(line[0] === "" || countries.indexOf(line[0]) >= 0 ) {
 
-      const countryData = addNewCountryData(line[1]);
+      const countryData = addNewCountryData(line[1] + (line[0] ? " - " + line[0] : ""));
       resetArrays(countryData[type]);
 
 
@@ -306,7 +295,7 @@ const resolveGlobalData = (globalData, type, updateDate) => {
 
         const acumData = (data && parseInt(data)) || 0;
         const lastAcumData = (index > 5 && parseInt(line[index-1])) || 0;
-        const absData = (acumData && (acumData - lastAcumData) ) || 0;
+        const absData = (acumData && (acumData - lastAcumData >= 0) && (acumData - lastAcumData) ) || 0;
         countryData[type].acum.push([timestamp, acumData]);
         countryData[type].acum_avg.push([timestamp, getAverageData(countryData[type].acum, countryData[type].acum.length-1)]);
         countryData[type].abs.push([timestamp, absData]);
@@ -321,9 +310,27 @@ const resolveGlobalData = (globalData, type, updateDate) => {
         }
       }
       countryData[type] = { ...countryData[type],  ...getScores(countryData[type])};
-    }
+    // }
   });
 
+};
+
+const resolveConfirmedDeathRate = () => {
+  console.log("resolveGlobalRateData", countriesData);
+  Object.keys(countriesData).forEach((countryName) => {
+    const country = countriesData[countryName];
+    country.recovered.acum && country.recovered.acum.length > 0 &&
+    country.deaths.acum && country.deaths.acum.length > 0 &&
+    country.recovered.acum.forEach((recovered, index) => {
+      const r = recovered[1];
+      const d = country.deaths.acum[index][1];
+      const dr = d+r !== 0 ? (d * 100)/(d+r) : 0;
+      const rr = d+r !== 0 ? (r * 100)/(r+d) : 100;
+      country.deathsRate.acum.push([recovered[0], dr]);
+      country.recoveredRate.acum.push([recovered[0], rr]);
+    });
+  });
+  console.log("resolveGlobalRateData", countriesData);
 };
 
 const resetArrays = (data) => {

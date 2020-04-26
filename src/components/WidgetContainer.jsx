@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     display: "inline-flex",
-    backgroundColor: "rgba(255,255,255,.025)",
+    backgroundColor: "rgba(255,255,255,.035)",
     padding: "2rem .75rem",
     borderRadius: ".5rem",
     width: "calc(100% - 1.5rem)",
