@@ -123,7 +123,7 @@ const handleRawData = (rawDataObj) => {
         const element = rawDataObj.spain[i];
         if(element && element.length > 0 && element[0]) {
           const globalDateIndex = firstDataIndex  + i - 1;
-          item[globalDateIndex] = element[3] || "0";
+          item[globalDateIndex] = element[5] || "0";
         }
       }
     }
@@ -147,7 +147,7 @@ const handleRawData = (rawDataObj) => {
         const element = rawDataObj.spain[i];
         if(element && element.length > 0 && element[0]) {
           const globalDateIndex = firstDataIndex  + i - 1;
-          item[globalDateIndex] = element[2] || "0";
+          item[globalDateIndex] = element[4] || "0";
         }
       }
     }

@@ -184,7 +184,7 @@ const buildSeriesData = (data) => {
   series.push({
     name: t("Fallecidos"),
     data: cloneDeep(data.deaths[serieType]).slice(beginSeries),
-    yAxis: 1,
+    yAxis: isAcumData ? 0 : 1,
     lineColor: _styles.fade(Highcharts.getOptions().colors[2], .8),
     color: _styles.fade(Highcharts.getOptions().colors[2], .8),
   });
