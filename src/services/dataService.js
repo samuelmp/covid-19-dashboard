@@ -254,7 +254,9 @@ const arrayAverage = (array) => {
   for( let i = 0; i < array.length; i++ ) {
       sum += parseInt( array[i], 10 );
   }
-  return Math.round((array.length > 0 && sum/array.length) || 0);
+
+  return Math.round((((array.length > 0 && sum/array.length) || 0) + Number.EPSILON) * 100) / 100
+
 }
 
 
