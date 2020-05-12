@@ -168,7 +168,7 @@ const buildSeriesData = (data) => {
   const serieType = isAvgData ? (isAcumData ? "acum_avg" : "abs_avg") : (isAcumData ? "acum" : "abs");
   const beginSeries = data.beginIndex;
   series.push({
-    name: t("PosiTives"),
+    name: t("PosiTivos"),
     data: cloneDeep(data.confirmed[serieType]).slice(beginSeries),
     lineColor: _styles.fade(Highcharts.getOptions().colors[0], .8),
     color: _styles.fade(Highcharts.getOptions().colors[0], .8),

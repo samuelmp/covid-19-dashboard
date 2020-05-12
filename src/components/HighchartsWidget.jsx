@@ -70,6 +70,7 @@ const getHighchartsOptions = (title, series, sufix, initialScale) => {
     },
     tooltip: {
         valueSuffix: sufix || "",
+        valueDecimals: "%" === sufix ? 2 : 0,
     },
     yAxis: {
       type: initialScale,
